@@ -1893,8 +1893,8 @@ function renderTypeSpecificSummary() {
 
         // === Risks ===
         function addRiskTable(title, risksArray) {
-            if (!risksArray || !risksArray.length) return;
-            htmlContent += `
+    if (!risksArray || !risksArray.length) return;
+    htmlContent += `
     <h2>${title}</h2>
     <table class="risk-category">
         <thead>
@@ -1902,22 +1902,26 @@ function renderTypeSpecificSummary() {
                 <th>Risk</th>
                 <th>Who Might Be Harmed</th>
                 <th>Controls / Mitigations</th>
+                <th>Emergency Procedures</th>
             </tr>
         </thead>
         <tbody>
 `;
-            risksArray.forEach(risk => {
-                htmlContent += `
+    risksArray.forEach(risk => {
+        htmlContent += `
             <tr>
                 <td>${(risk.hazard || '').trim() || 'Not specified'}</td>
-                <td>${(risk.who || '').trim() || 'Not specified'}</td>
-                <td>${(risk.controls || '').trim() || 'Not specified'}</td>
+                <td>${(risk.affected || '').trim() || 'Not specified'}</td>
+                <td>${(risk.measures || '').trim().replace(/\n/g, '<br>') || 'Not specified'}</td>
+                <td>${(risk.emergency || '').trim().replace(/\n/g, '<br>') || 'Not specified'}</td>
             </tr>
 `;
-            });
-            htmlContent += `
+    });
+    htmlContent += `
         </tbody>
     </table>
+`;
+}
 `;
         }
 
