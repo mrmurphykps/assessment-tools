@@ -1,0 +1,1916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Comprehensive risk assessment tool for educational activities, trips, and events">
+    <meta name="theme-color" content="#d61b26">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Risk Assessment">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-152x152.png">
+    <title>Educational Risk Assessment Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f5f5 0%, #d0caca 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            color: #d61b26;
+        }
+        
+        h1 {
+            color: #1f2937;
+            font-size: 28px;
+        }
+
+        .draft-status {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .draft-status-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #92400e;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .draft-status.hidden {
+            display: none;
+        }
+
+        .upload-section {
+            background: #f0f9ff;
+            border: 2px dashed #0ea5e9;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .upload-section h2 {
+            color: #0c4a6e;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+
+        .upload-section p {
+            color: #075985;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .upload-btn-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .upload-btn-wrapper input[type=file] {
+            font-size: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .upload-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #0ea5e9;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .upload-btn:hover {
+            background: #0284c7;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .divider:before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e5e7eb;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            position: relative;
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .progress-container {
+            margin-bottom: 40px;
+        }
+        
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .progress-label {
+            font-size: 11px;
+            color: #6b7280;
+            text-align: center;
+            flex: 1;
+            min-width: 80px;
+        }
+        
+        .progress-label.active {
+            color: #d61b26;
+            font-weight: 600;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #d0caca;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #d61b26;
+            transition: width 0.3s ease;
+        }
+        
+        .step-content {
+            margin-bottom: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+        
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #d61b26;
+            box-shadow: 0 0 0 3px rgba(214, 27, 38, 0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-top: 3px;
+        }
+        
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: 400;
+        }
+        
+        .info-box {
+            background: #fafafa;
+            border: 1px solid #a59a9e;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box h3 {
+            color: #d61b26;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        
+        .info-box p {
+            color: #6e605d;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+        
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-box.green {
+            background: #d1fae5;
+            border-color: #6ee7b7;
+        }
+        
+        .info-box.green h3 {
+            color: #065f46;
+        }
+        
+        .info-box.green p {
+            color: #047857;
+        }
+        
+        .info-box.gray {
+            background: #f3f4f6;
+            border-color: #a59a9e;
+        }
+        
+        .info-box.gray p {
+            color: #6e605d;
+        }
+        
+        .risk-list {
+            margin-top: 20px;
+        }
+        
+        .risk-card {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            background: white;
+        }
+        
+        .risk-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .risk-header h4 {
+            color: #374151;
+            font-size: 15px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: #f9fafb;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+        }
+        
+        .empty-state p {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .btn-primary {
+            background: #d61b26;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #b01620;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+        
+        .btn-secondary:hover {
+            background: #f9fafb;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+        
+        .btn-danger {
+            background: white;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+        
+        .btn-danger:hover {
+            background: #fef2f2;
+        }
+        
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #15803d;
+        }
+        
+        .btn-dashed {
+            width: 100%;
+            padding: 14px;
+            background: white;
+            color: #6b7280;
+            border: 2px dashed #d1d5db;
+        }
+        
+        .btn-dashed:hover {
+            border-color: #d61b26;
+            color: #d61b26;
+        }
+        
+        .btn-large {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .home-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #d61b26;
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: all 0.2s;
+        }
+        
+        .home-button:hover {
+            background: #b71620;
+            transform: scale(1.1);
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 30px;
+            border-top: 1px solid #e5e7eb;
+            gap: 12px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .summary-grid {
+            display: grid;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #6ee7b7;
+        }
+        
+        .summary-item {
+            color: #047857;
+            font-size: 14px;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .navigation {
+                flex-direction: column;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+            .navigation,
+            .progress-container,
+            .draft-status,
+            .upload-section,
+            button {
+                display: none !important;
+            }
+        }
+    
+        .school-logo {
+            height: 80px;
+            width: auto;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <!-- Home Button -->
+    <button class="home-button" onclick="window.location.href='/'" title="Return to Home">
+        🏠
+    </button>
+    
+    <div class="container">
+        <div class="header">
+            <img src="data:image/jpeg;base64,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" alt="Kingswood Prep Logo" class="school-logo">
+            <h1>Risk Assessment Tool</h1>
+        </div>
+
+        <div class="draft-status hidden" id="draftStatus">
+            <div class="draft-status-info">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span id="draftStatusText">Draft loaded</span>
+            </div>
+            <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="clearDraft()">
+                Start New
+            </button>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-labels" id="progressLabels"></div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="step-content" id="stepContent"></div>
+
+        <div class="navigation">
+            <button class="btn-secondary" id="prevBtn" onclick="previousStep()">
+                â† Previous
+            </button>
+            <button class="btn-warning" id="saveDraftBtn" onclick="saveDraft()" style="display: none;">
+                ðŸ’¾ Save Draft
+            </button>
+            <button class="btn-primary" id="nextBtn" onclick="nextStep()">
+                Next â†’
+            </button>
+        </div>
+
+        <div class="divider"><span>OR</span></div>
+
+        <div id="uploadSection" class="upload-section">
+            <h2>ðŸ“‚ Resume Previous Draft</h2>
+            <p>Upload a previously saved draft to continue where you left off</p>
+            <div class="upload-btn-wrapper">
+                <div class="upload-btn">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    Choose Draft File
+                </div>
+                <input type="file" accept=".json" onchange="loadDraft(event)" />
+            </div>
+            <p style="font-size: 12px; color: #64748b; margin-top: 12px;">Accepts .json files only</p>
+        </div>
+    </div>
+
+    <script>
+        const FORM_VERSION = '1.0'; // Update this when form structure changes
+        
+        const assessmentTypes = [
+            { value: 'pre_booking', label: 'Pre-Booking Trip Approval' },
+            { value: 'school_trip', label: 'School Trip / Off-site Visit' },
+            { value: 'onsite_event', label: 'On-site Event' },
+            { value: 'curriculum_activity', label: 'Curriculum Activity' },
+            { value: 'temporary_disability', label: 'Temporary Disability' },
+            { value: 'peep', label: 'Personal Emergency Evacuation Plan (PEEP)' }
+        ];
+
+        const categories = [
+            {
+                id: 'person',
+                title: 'Person Risks',
+                description: 'Risks directly related to occurrence/event/activity',
+                examples: 'E.g., safeguarding, medical needs, injuries, lost child, Personal Protective Equipment',
+                field: 'personRisks'
+            },
+            {
+                id: 'environment',
+                title: 'Environment Risks',
+                description: 'Risks related to the area the activity is taking place',
+                examples: 'E.g., fire, storage, vehicle movements, security, falling tree debris, equipment failure, disposal of waste',
+                field: 'environmentRisks'
+            },
+            {
+                id: 'activity',
+                title: 'Specific Activity Related Risks',
+                description: 'Risks specific to the activity being performed',
+                examples: 'E.g., using scalpels, animal husbandry, kiln, woodworking tools, sports specific',
+                field: 'activityRisks'
+            }
+        ];
+
+        let currentStep = 0;
+        let steps = [];
+        let data = {
+            assessmentType: '',
+            activityName: '',
+            date: '',
+            assessor: '',
+            typeSpecific: {},
+            personRisks: [],
+            environmentRisks: [],
+            activityRisks: [],
+            comments: ''
+        };
+        let isDraft = false;
+        let hasUnsavedChanges = false;
+
+        function buildSteps() {
+            steps = [
+                { title: 'Select Type', id: 'type' },
+                { title: 'Basic Info', id: 'info' }
+            ];
+
+            // Pre-booking has simplified flow
+            if (data.assessmentType === 'pre_booking') {
+                steps.push(
+                    { title: 'Pre-Booking Details', id: 'typeSpecific' },
+                    { title: 'Review', id: 'review' }
+                );
+            } else {
+                steps.push({ title: 'Details', id: 'typeSpecific' });
+                
+                if (data.assessmentType !== 'peep') {
+                    steps.push(
+                        { title: 'Person Risks', id: 'person' },
+                        { title: 'Environment', id: 'environment' },
+                        { title: 'Activity Risks', id: 'activity' }
+                    );
+                }
+
+                steps.push(
+                    { title: 'Comments', id: 'comments' },
+                    { title: 'Review', id: 'review' }
+                );
+            }
+        }
+
+        function initializeApp() {
+            buildSteps();
+            renderProgressLabels();
+            renderStep();
+            updateProgress();
+            showSaveDraftButton();
+        }
+
+        function showSaveDraftButton() {
+            // Show save draft button after step 0 (type selection)
+            if (currentStep > 0) {
+                document.getElementById('saveDraftBtn').style.display = 'block';
+            } else {
+                document.getElementById('saveDraftBtn').style.display = 'none';
+            }
+        }
+
+        function renderProgressLabels() {
+            const labels = document.getElementById('progressLabels');
+            labels.innerHTML = steps.map((step, index) => 
+                `<div class="progress-label ${index === currentStep ? 'active' : ''}">${step.title}</div>`
+            ).join('');
+        }
+
+        function updateProgress() {
+            const fill = document.getElementById('progressFill');
+            const percent = ((currentStep + 1) / steps.length) * 100;
+            fill.style.width = percent + '%';
+            renderProgressLabels();
+            
+            document.getElementById('prevBtn').disabled = currentStep === 0;
+            
+            if (currentStep === steps.length - 1) {
+                document.getElementById('nextBtn').style.display = 'none';
+            } else {
+                document.getElementById('nextBtn').style.display = 'block';
+            }
+
+            showSaveDraftButton();
+        }
+
+        function markUnsaved() {
+            hasUnsavedChanges = true;
+        }
+
+        function loadDraft(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const loadedData = JSON.parse(e.target.result);
+                    
+                    // Validate the data structure
+                    if (!loadedData.assessmentType) {
+                        alert('Invalid draft file. Please select a valid risk assessment draft.');
+                        return;
+                    }
+
+                    // Check version compatibility
+                    const draftVersion = loadedData.formVersion || 'unknown';
+                    const versionMismatch = draftVersion !== FORM_VERSION;
+                    
+                    if (versionMismatch) {
+                        const proceed = confirm(
+                            `âš ï¸ Version Mismatch Warning\n\n` +
+                            `This draft was created with version ${draftVersion} of the form.\n` +
+                            `Current form version is ${FORM_VERSION}.\n\n` +
+                            `Some fields may be missing or have changed.\n\n` +
+                            `Do you want to continue loading this draft?`
+                        );
+                        
+                        if (!proceed) {
+                            return;
+                        }
+                    }
+
+                    // Load the data
+                    data = loadedData;
+                    currentStep = loadedData.currentStep || 0;
+                    isDraft = true;
+
+                    // Update UI
+                    buildSteps();
+                    document.getElementById('uploadSection').classList.add('hidden');
+                    
+                    const draftStatus = document.getElementById('draftStatus');
+                    draftStatus.classList.remove('hidden');
+                    
+                    const lastSaved = loadedData.lastSaved ? new Date(loadedData.lastSaved).toLocaleString('en-GB') : 'Unknown';
+                    let statusText = `Draft loaded - Last saved: ${lastSaved}`;
+                    if (versionMismatch) {
+                        statusText += ` (Version ${draftVersion})`;
+                    }
+                    document.getElementById('draftStatusText').textContent = statusText;
+
+                    renderStep();
+                    updateProgress();
+                    hasUnsavedChanges = false;
+
+                    if (versionMismatch) {
+                        alert('Draft loaded successfully! Please review all fields carefully as the form structure may have changed.');
+                    } else {
+                        alert('Draft loaded successfully! Continue from where you left off.');
+                    }
+                } catch (error) {
+                    alert('Error loading draft file. Please ensure it\'s a valid risk assessment draft.');
+                    console.error('Draft load error:', error);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function saveDraft() {
+            const draftData = {
+                ...data,
+                currentStep: currentStep,
+                lastSaved: new Date().toISOString(),
+                formVersion: FORM_VERSION
+            };
+
+            const json = JSON.stringify(draftData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            const activityName = data.activityName || 'Untitled';
+            const dateStr = data.date || new Date().toISOString().split('T')[0];
+            a.download = `RiskAssessment_DRAFT_${activityName.replace(/\s+/g, '_')}_${dateStr}.json`;
+            
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            hasUnsavedChanges = false;
+            alert('Draft saved successfully! You can resume this assessment later by uploading this file.');
+        }
+
+        function clearDraft() {
+            if (!confirm('Are you sure you want to start a new assessment? Any unsaved changes will be lost.')) {
+                return;
+            }
+
+            // Reset everything
+            data = {
+                assessmentType: '',
+                activityName: '',
+                date: '',
+                assessor: '',
+                typeSpecific: {},
+                personRisks: [],
+                environmentRisks: [],
+                activityRisks: [],
+                comments: ''
+            };
+            currentStep = 0;
+            isDraft = false;
+            hasUnsavedChanges = false;
+
+            document.getElementById('draftStatus').classList.add('hidden');
+            document.getElementById('uploadSection').classList.remove('hidden');
+            
+            buildSteps();
+            renderStep();
+            updateProgress();
+        }
+
+        // Warn user about unsaved changes
+        window.addEventListener('beforeunload', (e) => {
+            if (hasUnsavedChanges && currentStep > 0) {
+                e.preventDefault();
+                e.returnValue = 'You have unsaved changes. Save draft before leaving?';
+                return e.returnValue;
+            }
+        });
+
+        function renderStep() {
+            const content = document.getElementById('stepContent');
+            const step = steps[currentStep];
+
+            switch(step.id) {
+                case 'type':
+                    renderTypeSelection(content);
+                    break;
+                case 'info':
+                    renderBasicInfo(content);
+                    break;
+                case 'typeSpecific':
+                    renderTypeSpecific(content);
+                    break;
+                case 'person':
+                case 'environment':
+                case 'activity':
+                    renderRiskCategory(step.id);
+                    break;
+                case 'comments':
+                    renderComments(content);
+                    break;
+                case 'review':
+                    renderReview();
+                    break;
+            }
+        }
+
+        function renderTypeSelection(content) {
+            content.innerHTML = `
+                <div class="info-box">
+                    <h3>Select Risk Assessment Type</h3>
+                    <p>Choose the type of risk assessment you need to complete. Different types will ask for different information.</p>
+                </div>
+                <div class="form-group">
+                    <label>Risk Assessment Type *</label>
+                    <select id="assessmentType">
+                        <option value="">-- Select Type --</option>
+                        ${assessmentTypes.map(type => 
+                            `<option value="${type.value}" ${data.assessmentType === type.value ? 'selected' : ''}>${type.label}</option>`
+                        ).join('')}
+                    </select>
+                </div>
+            `;
+            
+            document.getElementById('assessmentType').addEventListener('change', (e) => {
+                data.assessmentType = e.target.value;
+                buildSteps();
+                renderProgressLabels();
+                markUnsaved();
+            });
+        }
+
+        function renderBasicInfo(content) {
+            const isPreBooking = data.assessmentType === 'pre_booking';
+            const nameLabel = isPreBooking ? 'Name of Trip *' : 'Activity/Event Name *';
+            const namePlaceholder = isPreBooking ? 'e.g., Year 5 Visit to Roman Baths' : 'e.g., Year 6 Field Trip to Science Museum';
+            const dateLabel = isPreBooking ? 'Form Completion Date *' : 'Date *';
+            const assessorLabel = isPreBooking ? 'Submitted By *' : 'Assessed By *';
+            
+            content.innerHTML = `
+                <div class="form-group">
+                    <label>${nameLabel}</label>
+                    <input type="text" id="activityName" placeholder="${namePlaceholder}" value="${data.activityName}">
+                </div>
+                <div class="form-group">
+                    <label>${dateLabel}</label>
+                    <input type="date" id="date" value="${data.date}">
+                </div>
+                <div class="form-group">
+                    <label>${assessorLabel}</label>
+                    <input type="text" id="assessor" placeholder="Your name" value="${data.assessor}">
+                </div>
+            `;
+            
+            document.getElementById('activityName').addEventListener('input', (e) => { data.activityName = e.target.value; markUnsaved(); });
+            document.getElementById('date').addEventListener('input', (e) => { data.date = e.target.value; markUnsaved(); });
+            document.getElementById('assessor').addEventListener('input', (e) => { data.assessor = e.target.value; markUnsaved(); });
+        }
+
+        function renderTypeSpecific(content) {
+            const type = data.assessmentType;
+            let html = '';
+
+            switch(type) {
+                case 'pre_booking':
+                    html = renderPreBookingForm();
+                    break;
+                case 'school_trip':
+                    html = renderSchoolTripForm();
+                    break;
+                case 'onsite_event':
+                    html = renderOnsiteEventForm();
+                    break;
+                case 'curriculum_activity':
+                    html = renderCurriculumActivityForm();
+                    break;
+                case 'temporary_disability':
+                    html = renderTemporaryDisabilityForm();
+                    break;
+                case 'peep':
+                    html = renderPEEPForm();
+                    break;
+            }
+
+            content.innerHTML = html;
+            attachTypeSpecificListeners();
+        }
+
+        function renderPreBookingForm() {
+            const d = data.typeSpecific;
+            const specialistTeachers = [
+                { email: 'kfox@kingswood.bath.sch.uk', name: 'K Fox' },
+                { email: 'plortal@kingswood.bath.sch.uk', name: 'P Lortal' },
+                { email: 'dmurphy@kingswood.bath.sch.uk', name: 'D Murphy' },
+                { email: 'ishrubsole@kingswood.bath.sch.uk', name: 'I Shrubsole' },
+                { email: 'nrobinson@kingswood.bath.sch.uk', name: 'N Robinson' },
+                { email: 'ezukert@kingswood.bath.sch.uk', name: 'E Zukert' },
+                { email: 'fharvey@kingswood.bath.sch.uk', name: 'F Harvey' },
+                { email: 'hwebb@kingswood.bath.sch.uk', name: 'H Webb' },
+                { email: 'mkeighley@kingswood.bath.sch.uk', name: 'M Keighley' }
+            ];
+            
+            return `
+                <div class="info-box">
+                    <h3>Pre-Booking Trip Approval</h3>
+                    <p>Complete this form at least 1 term before the trip. This allows for improved calendar management.</p>
+                </div>
+                <div class="form-group">
+                    <label>Purpose of Trip *</label>
+                    <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">Set out a clear rationale for the trip</p>
+                    <textarea id="ts_purpose" rows="4" placeholder="Describe the educational purpose and benefits of this trip...">${d.purpose || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Date of Trip *</label>
+                    <div style="background: #fffbeb; border: 1px solid #fbbf24; border-radius: 6px; padding: 12px; margin-bottom: 12px;">
+                        <p style="font-size: 13px; color: #92400e; margin: 4px 0;">âš ï¸ <strong>Important:</strong></p>
+                        <ul style="margin: 8px 0 0 20px; font-size: 13px; color: #92400e;">
+                            <li>Y3/4 - trips on Mondays require 2 terms notice</li>
+                            <li>Y5/6 - trips on Wednesdays require 2 terms notice</li>
+                            <li>Trips should generally avoid impacting Thursday after-school activities</li>
+                        </ul>
+                    </div>
+                    <input type="date" id="ts_tripDate" value="${d.tripDate || ''}">
+                </div>
+                <div class="form-group">
+                    <label>Alternate Suitable Dates</label>
+                    <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">Please provide alternative dates in case the preferred date is not available</p>
+                    <textarea id="ts_alternateDates" rows="3" placeholder="e.g., Monday 15th March, Wednesday 24th March, or any Monday in March">${d.alternateDates || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Trip Timings (approx.) *</label>
+                    <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">Approximate departure and return times</p>
+                    <input type="text" id="ts_tripTimings" value="${d.tripTimings || ''}" placeholder="e.g., Depart 9:00 AM, Return 3:30 PM">
+                </div>
+                <div class="form-group">
+                    <label>Pupils: Year/Group and Number Attending *</label>
+                    <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">Specify which year group(s) and approximately how many pupils</p>
+                    <input type="text" id="ts_pupils" value="${d.pupils || ''}" placeholder="e.g., Year 5 - 28 pupils">
+                </div>
+                <div class="form-group">
+                    <label>Staff: Who and Number Attending *</label>
+                    <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">List staff members and total number</p>
+                    <textarea id="ts_staffAttending" rows="3" placeholder="e.g., Mrs Smith, Mr Jones, Miss Brown - 3 staff members">${d.staffAttending || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Specialist Teachers Whose Lessons Will Be Affected *</label>
+                    <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">On approval, this form will alert the specialist teachers marked below of your trip approval.</p>
+                    <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-top: 12px;">
+                        ${specialistTeachers.map(teacher => `
+                            <div class="checkbox-group" style="margin-bottom: 10px;">
+                                <input type="checkbox" id="ts_teacher_${teacher.email}" ${(d.affectedTeachers || []).includes(teacher.email) ? 'checked' : ''} data-teacher-email="${teacher.email}">
+                                <label for="ts_teacher_${teacher.email}">${teacher.name} (${teacher.email})</label>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+                function renderSchoolTripForm() {
+            const d = data.typeSpecific;
+            return `
+                <div class="info-box">
+                    <h3>School Trip / Off-site Visit Details</h3>
+                    <p>Please provide all logistical information for this trip.</p>
+                </div>
+                <div class="form-group">
+                    <label>Destination/Location (Include Address) *</label>
+                    <input type="text" id="ts_destination" value="${d.destination || ''}" placeholder="e.g., Science Museum, Exhibition Road, South Kensington, London SW7 2DD">
+                </div>
+                <div class="form-group">
+                    <label>Mode of Transport, Provider and Contact Details *</label>
+                    <textarea id="ts_transport" rows="3" placeholder="e.g., Coach provided by ABC Travel, Contact: John Smith, Tel: 01234 567890">${d.transport || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Outbound Journey *</label>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Departure Time</label>
+                            <input type="time" id="ts_outboundDepartureTime" value="${d.outboundDepartureTime || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Return Time</label>
+                            <input type="time" id="ts_outboundReturnTime" value="${d.outboundReturnTime || ''}">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Return Journey *</label>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Departure Time</label>
+                            <input type="time" id="ts_returnDepartureTime" value="${d.returnDepartureTime || ''}">
+                        </div>
+                        <div class="form-group">
+                            <label>Return Time</label>
+                            <input type="time" id="ts_returnReturnTime" value="${d.returnReturnTime || ''}">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Staff-to-Student Ratio *</label>
+                    <input type="text" id="ts_ratio" value="${d.ratio || ''}" placeholder="e.g., 1:10">
+                </div>
+                <div class="form-group">
+                    <label>Staff Members (Names, Contact Details and First Aid Qualified) *</label>
+                    <textarea id="ts_staffNames" rows="5" placeholder="e.g., Mrs Sarah Smith - 07123 456789 - First Aid Qualified&#10;Mr John Jones - 07987 654321 - Not First Aid Qualified">${d.staffNames || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Students (Names) *</label>
+                    <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">You can either type the names below or upload a file</p>
+                    <textarea id="ts_studentNames" rows="5" placeholder="List all students attending (one per line)&#10;e.g.,&#10;Emma Thompson&#10;James Wilson&#10;Sarah Brown">${d.studentNames || ''}</textarea>
+                    <div style="margin-top: 12px;">
+                        <label class="btn-secondary" style="display: inline-block; cursor: pointer; padding: 8px 16px; font-size: 13px;">
+                            ðŸ“Ž Upload Student List File (Optional)
+                            <input type="file" id="ts_studentFile" accept=".txt,.csv,.doc,.docx" style="display: none;" onchange="handleStudentFileUpload(event)">
+                        </label>
+                        <span id="studentFileName" style="margin-left: 10px; font-size: 13px; color: #6b7280;"></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="ts_medicalAck" ${d.medicalAck ? 'checked' : ''}>
+                        <label for="ts_medicalAck">I acknowledge that I will take all medical information held by the school and ensure that all staff are aware of pupil conditions *</label>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderOnsiteEventForm() {
+            const d = data.typeSpecific;
+            return `
+                <div class="info-box">
+                    <h3>On-site Event Details</h3>
+                    <p>Please provide information about this on-site event.</p>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Expected Number of Visitors *</label>
+                        <input type="number" id="ts_visitors" value="${d.visitors || ''}" placeholder="e.g., 50">
+                    </div>
+                    <div class="form-group">
+                        <label>Expected Total Number of People *</label>
+                        <input type="number" id="ts_totalPeople" value="${d.totalPeople || ''}" placeholder="e.g., 100">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Venue/Rooms Being Used *</label>
+                    <input type="text" id="ts_venue" value="${d.venue || ''}" placeholder="e.g., Main Hall, Classrooms 1-3">
+                </div>
+                <div class="form-group">
+                    <label>Type of Event *</label>
+                    <input type="text" id="ts_eventType" value="${d.eventType || ''}" placeholder="e.g., Sports Day, School Performance, Open Evening">
+                </div>
+                <div class="form-group">
+                    <label>Parking Arrangements *</label>
+                    <textarea id="ts_parking" rows="2" placeholder="Describe parking arrangements for visitors">${d.parking || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Timings of Event *</label>
+                    <input type="text" id="ts_timings" value="${d.timings || ''}" placeholder="e.g., 2:00 PM - 5:00 PM">
+                </div>
+            `;
+        }
+
+        function renderCurriculumActivityForm() {
+            const d = data.typeSpecific;
+            return `
+                <div class="info-box">
+                    <h3>Curriculum Activity Details</h3>
+                    <p>Describe the activity that requires assessment beyond normal classroom curriculum.</p>
+                </div>
+                <div class="form-group">
+                    <label>What activity is taking place beyond the expected classroom curriculum that requires additional assessment? *</label>
+                    <textarea id="ts_activityDescription" rows="5" placeholder="Describe the activity in detail...">${d.activityDescription || ''}</textarea>
+                </div>
+            `;
+        }
+
+        function renderTemporaryDisabilityForm() {
+            const d = data.typeSpecific;
+            return `
+                <div class="info-box">
+                    <h3>Temporary Disability Details</h3>
+                    <p>Provide information about the injured party and their temporary disability.</p>
+                </div>
+                <div class="form-group">
+                    <label>Name of Injured Party *</label>
+                    <input type="text" id="ts_injuredName" value="${d.injuredName || ''}" placeholder="Full name">
+                </div>
+                <div class="form-group">
+                    <label>Injury Sustained *</label>
+                    <textarea id="ts_injury" rows="3" placeholder="Describe the injury">${d.injury || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Information from Medical Professional *</label>
+                    <textarea id="ts_medicalInfo" rows="3" placeholder="Medical professional's advice and recommendations">${d.medicalInfo || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Information from Parents *</label>
+                    <textarea id="ts_parentInfo" rows="3" placeholder="Information provided by parents/guardians">${d.parentInfo || ''}</textarea>
+                </div>
+            `;
+        }
+
+        function renderPEEPForm() {
+            const d = data.typeSpecific;
+            return `
+                <div class="info-box">
+                    <h3>Personal Emergency Evacuation Plan (PEEP)</h3>
+                    <p>Complete the following information for the emergency evacuation plan.</p>
+                </div>
+                <div class="form-group">
+                    <label>Name of Individual *</label>
+                    <input type="text" id="ts_peepName" value="${d.peepName || ''}" placeholder="Full name">
+                </div>
+                <div class="form-group">
+                    <label>Nature of Disability/Condition *</label>
+                    <textarea id="ts_disability" rows="3" placeholder="Describe the disability or medical condition">${d.disability || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Mobility/Assistance Requirements *</label>
+                    <textarea id="ts_mobilityNeeds" rows="3" placeholder="What assistance is needed for mobility?">${d.mobilityNeeds || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Communication Needs *</label>
+                    <textarea id="ts_communicationNeeds" rows="2" placeholder="Any special communication requirements?">${d.communicationNeeds || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Evacuation Procedures *</label>
+                    <textarea id="ts_evacuationProcedures" rows="4" placeholder="Specific procedures for evacuating this individual">${d.evacuationProcedures || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Designated Assistance Personnel *</label>
+                    <input type="text" id="ts_assistancePersonnel" value="${d.assistancePersonnel || ''}" placeholder="Names of staff members assigned to assist">
+                </div>
+                <div class="form-group">
+                    <label>Assembly Point Arrangements *</label>
+                    <textarea id="ts_assemblyPoint" rows="2" placeholder="Where will the individual assemble and any special arrangements">${d.assemblyPoint || ''}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Equipment Required *</label>
+                    <input type="text" id="ts_equipment" value="${d.equipment || ''}" placeholder="e.g., Wheelchair, evacuation chair, etc.">
+                </div>
+            `;
+        }
+
+        function handleStudentFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                
+                // Store the file name and content
+                data.typeSpecific.studentFileName = file.name;
+                data.typeSpecific.studentFileContent = content;
+                
+                // Also populate the textarea with the content
+                const textarea = document.getElementById('ts_studentNames');
+                if (textarea) {
+                    // If textarea is empty, populate it with file content
+                    if (!textarea.value.trim()) {
+                        textarea.value = content;
+                        data.typeSpecific.studentNames = content;
+                    } else {
+                        // If textarea has content, ask user
+                        if (confirm('Replace existing student list with uploaded file?')) {
+                            textarea.value = content;
+                            data.typeSpecific.studentNames = content;
+                        }
+                    }
+                }
+                
+                // Show file name
+                const fileNameSpan = document.getElementById('studentFileName');
+                if (fileNameSpan) {
+                    fileNameSpan.textContent = `âœ“ ${file.name} uploaded`;
+                    fileNameSpan.style.color = '#16a34a';
+                }
+                
+                markUnsaved();
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function attachTypeSpecificListeners() {
+            const inputs = document.querySelectorAll('[id^="ts_"]');
+            inputs.forEach(input => {
+                const fieldName = input.id.replace('ts_', '');
+                
+                // Handle specialist teacher checkboxes separately
+                if (input.dataset.teacherEmail) {
+                    input.addEventListener('change', (e) => {
+                        if (!data.typeSpecific.affectedTeachers) {
+                            data.typeSpecific.affectedTeachers = [];
+                        }
+                        const email = e.target.dataset.teacherEmail;
+                        if (e.target.checked) {
+                            if (!data.typeSpecific.affectedTeachers.includes(email)) {
+                                data.typeSpecific.affectedTeachers.push(email);
+                            }
+                        } else {
+                            data.typeSpecific.affectedTeachers = data.typeSpecific.affectedTeachers.filter(t => t !== email);
+                        }
+                        markUnsaved();
+                    });
+                } else if (input.type === 'checkbox') {
+                    input.addEventListener('change', (e) => {
+                        data.typeSpecific[fieldName] = e.target.checked;
+                        markUnsaved();
+                    });
+                } else {
+                    input.addEventListener('input', (e) => {
+                        data.typeSpecific[fieldName] = e.target.value;
+                        markUnsaved();
+                    });
+                }
+            });
+        }
+
+        function renderRiskCategory(categoryId) {
+            const category = categories.find(c => c.id === categoryId);
+            const risks = data[category.field];
+            const content = document.getElementById('stepContent');
+
+            let html = `
+                <div class="info-box">
+                    <h3>${category.title}</h3>
+                    <p>${category.description}</p>
+                    <p style="margin-top: 8px; font-style: italic;">${category.examples}</p>
+                </div>
+            `;
+
+            if (risks.length === 0) {
+                html += `
+                    <div class="empty-state">
+                        <p>No risks added yet for this category</p>
+                        <button class="btn-primary" onclick="addRisk('${category.field}')">+ Add First Risk</button>
+                    </div>
+                `;
+            } else {
+                html += '<div class="risk-list">';
+                risks.forEach((risk, index) => {
+                    html += `
+                        <div class="risk-card">
+                            <div class="risk-header">
+                                <h4>Risk #${index + 1}</h4>
+                                <button class="btn-danger" onclick="deleteRisk('${category.field}', ${index})">Delete</button>
+                            </div>
+                            <div class="form-group">
+                                <label>What are the hazards?</label>
+                                <textarea rows="2" placeholder="Describe the hazards..." data-field="${category.field}" data-index="${index}" data-prop="hazard">${risk.hazard}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Who may be affected?</label>
+                                <input type="text" placeholder="e.g., All students, Staff, Visitors" data-field="${category.field}" data-index="${index}" data-prop="affected" value="${risk.affected}">
+                            </div>
+                            <div class="form-group">
+                                <label>What measures are in place? How have you implemented them?</label>
+                                <textarea rows="3" placeholder="Describe measures and implementation..." data-field="${category.field}" data-index="${index}" data-prop="measures">${risk.measures}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>What emergency steps will be taken?</label>
+                                <textarea rows="2" placeholder="Emergency response procedures..." data-field="${category.field}" data-index="${index}" data-prop="emergency">${risk.emergency}</textarea>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `
+                    </div>
+                    <button class="btn-dashed" onclick="addRisk('${category.field}')">+ Add Another Risk</button>
+                `;
+            }
+
+            content.innerHTML = html;
+
+            document.querySelectorAll('input[data-field], textarea[data-field]').forEach(el => {
+                el.addEventListener('input', (e) => {
+                    const field = e.target.dataset.field;
+                    const index = e.target.dataset.index;
+                    const prop = e.target.dataset.prop;
+                    data[field][index][prop] = e.target.value;
+                    markUnsaved();
+                });
+            });
+        }
+
+        function addRisk(field) {
+            data[field].push({
+                hazard: '',
+                affected: '',
+                measures: '',
+                emergency: ''
+            });
+            markUnsaved();
+            renderStep();
+        }
+
+        function deleteRisk(field, index) {
+            if (confirm('Are you sure you want to delete this risk?')) {
+                data[field].splice(index, 1);
+                markUnsaved();
+                renderStep();
+            }
+        }
+
+        function renderComments(content) {
+            content.innerHTML = `
+                <div class="info-box gray">
+                    <p>Add any additional comments, notes, or considerations that don't fit into the previous categories.</p>
+                </div>
+                <div class="form-group">
+                    <label>Any Other Comments</label>
+                    <textarea id="comments" rows="6" placeholder="Optional additional comments...">${data.comments}</textarea>
+                </div>
+            `;
+            
+            document.getElementById('comments').addEventListener('input', (e) => { data.comments = e.target.value; markUnsaved(); });
+        }
+
+        function renderReview() {
+            const totalRisks = data.personRisks.length + data.environmentRisks.length + data.activityRisks.length;
+            const content = document.getElementById('stepContent');
+
+            const renderRiskOverview = (risks, title, stepIndex) => {
+                if (risks.length === 0) return '';
+                let html = `<div style="margin-bottom: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h4 style="font-weight: 600; color: #1f2937; font-size: 15px; margin: 0;">${title}</h4>
+                        <button onclick="goToStep(${stepIndex})" style="background: none; border: none; color: #2563eb; font-size: 13px; font-weight: 500; cursor: pointer; padding: 4px 8px;">
+                            Edit â†’
+                        </button>
+                    </div>`;
+                
+                risks.forEach((risk, index) => {
+                    html += `
+                        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                            <div style="font-size: 13px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">Risk #${index + 1}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 13px;">
+                                <div>
+                                    <span style="font-weight: 500; color: #374151;">Hazard:</span>
+                                    <p style="color: #6b7280; margin-top: 4px;">${risk.hazard || 'Not specified'}</p>
+                                </div>
+                                <div>
+                                    <span style="font-weight: 500; color: #374151;">Affected:</span>
+                                    <p style="color: #6b7280; margin-top: 4px;">${risk.affected || 'Not specified'}</p>
+                                </div>
+                                <div style="grid-column: span 2;">
+                                    <span style="font-weight: 500; color: #374151;">Measures:</span>
+                                    <p style="color: #6b7280; margin-top: 4px;">${risk.measures || 'Not specified'}</p>
+                                </div>
+                                <div style="grid-column: span 2;">
+                                    <span style="font-weight: 500; color: #374151;">Emergency Steps:</span>
+                                    <p style="color: #6b7280; margin-top: 4px;">${risk.emergency || 'Not specified'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                return html;
+            };
+
+            const renderTypeSpecificSummary = () => {
+                const type = data.assessmentType;
+                const d = data.typeSpecific;
+                let html = '<div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin-top: 20px;">';
+                
+                const typeName = assessmentTypes.find(t => t.value === type)?.label || '';
+                html += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <h4 style="font-weight: 600; color: #1e40af; font-size: 15px; margin: 0;">${typeName} Details</h4>
+                    <button onclick="goToStep(2)" style="background: none; border: none; color: #2563eb; font-size: 13px; font-weight: 500; cursor: pointer; padding: 4px 8px;">Edit â†’</button>
+                </div>`;
+
+                switch(type) {
+                    case 'pre_booking':
+                        html += `
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Purpose of Trip:</strong></p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0 12px 0;">${d.purpose || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Proposed Date:</strong> ${d.tripDate || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Alternate Dates:</strong></p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0 12px 0;">${d.alternateDates || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Trip Timings:</strong> ${d.tripTimings || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Pupils:</strong> ${d.pupils || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Staff Attending:</strong></p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0 12px 0;">${(d.staffAttending || 'Not specified').replace(/\n/g, '<br>')}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Affected Specialist Teachers:</strong></p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;">${(d.affectedTeachers && d.affectedTeachers.length > 0) ? d.affectedTeachers.join(', ') : 'None selected'}</p>
+                        `;
+                        break;
+                    case 'school_trip':
+                        html += `
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Destination:</strong> ${d.destination || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Transport:</strong><br>${(d.transport || 'Not specified').replace(/\n/g, '<br>')}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Outbound Journey:</strong> Depart ${d.outboundDepartureTime || 'Not specified'} | Arrive ${d.outboundReturnTime || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Return Journey:</strong> Depart ${d.returnDepartureTime || 'Not specified'} | Arrive ${d.returnReturnTime || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Staff:Student Ratio:</strong> ${d.ratio || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Staff:</strong><br>${(d.staffNames || 'Not specified').replace(/\n/g, '<br>')}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Students:</strong>${d.studentFileName ? ` (File: ${d.studentFileName})` : ''}<br>${(d.studentNames || 'Not specified').replace(/\n/g, '<br>')}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Medical Info Acknowledged:</strong> ${d.medicalAck ? 'Yes âœ“' : 'No'}</p>
+                        `;
+                        break;
+                    case 'onsite_event':
+                        html += `
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Visitors:</strong> ${d.visitors || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Total People:</strong> ${d.totalPeople || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Venue:</strong> ${d.venue || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Event Type:</strong> ${d.eventType || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Parking:</strong> ${d.parking || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Timings:</strong> ${d.timings || 'Not specified'}</p>
+                        `;
+                        break;
+                    case 'curriculum_activity':
+                        html += `
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Activity Description:</strong></p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 8px 0;">${d.activityDescription || 'Not specified'}</p>
+                        `;
+                        break;
+                    case 'temporary_disability':
+                        html += `
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Injured Party:</strong> ${d.injuredName || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Injury:</strong> ${d.injury || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Medical Info:</strong> ${d.medicalInfo || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Parent Info:</strong> ${d.parentInfo || 'Not specified'}</p>
+                        `;
+                        break;
+                    case 'peep':
+                        html += `
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Individual:</strong> ${d.peepName || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Disability/Condition:</strong> ${d.disability || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Mobility Needs:</strong> ${d.mobilityNeeds || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Communication Needs:</strong> ${d.communicationNeeds || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Evacuation Procedures:</strong> ${d.evacuationProcedures || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Assistance Personnel:</strong> ${d.assistancePersonnel || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Assembly Point:</strong> ${d.assemblyPoint || 'Not specified'}</p>
+                            <p style="font-size: 13px; color: #1e40af; margin: 4px 0;"><strong>Equipment:</strong> ${d.equipment || 'Not specified'}</p>
+                        `;
+                        break;
+                }
+                
+                html += '</div>';
+                return html;
+            };
+
+            let overviewContent = '';
+            const isPEEP = data.assessmentType === 'peep';
+            
+            if (!isPEEP && totalRisks > 0) {
+                overviewContent = `
+                    <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-top: 20px;">
+                        <h3 style="font-weight: 600; color: #1f2937; margin-bottom: 16px; font-size: 17px;">Risk Assessment Details</h3>
+                        ${renderRiskOverview(data.personRisks, 'Person Risks', 3)}
+                        ${renderRiskOverview(data.environmentRisks, 'Environment Risks', 4)}
+                        ${renderRiskOverview(data.activityRisks, 'Specific Activity Risks', 5)}
+                        ${data.comments ? `
+                            <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid #d1d5db;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <h4 style="font-weight: 600; color: #1f2937; font-size: 15px; margin: 0;">Additional Comments</h4>
+                                    <button onclick="goToStep(${isPEEP ? 3 : 6})" style="background: none; border: none; color: #2563eb; font-size: 13px; font-weight: 500; cursor: pointer; padding: 4px 8px;">Edit â†’</button>
+                                </div>
+                                <p style="font-size: 13px; color: #6b7280;">${data.comments}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            } else if (!isPEEP) {
+                overviewContent = `
+                    <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-top: 20px;">
+                        <h3 style="font-weight: 600; color: #1f2937; margin-bottom: 16px; font-size: 17px;">Risk Assessment Details</h3>
+                        <p style="color: #6b7280; font-size: 13px;">No risks have been identified yet.</p>
+                    </div>
+                `;
+            } else if (data.comments) {
+                overviewContent = `
+                    <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-top: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <h4 style="font-weight: 600; color: #1f2937; font-size: 15px; margin: 0;">Additional Comments</h4>
+                            <button onclick="goToStep(3)" style="background: none; border: none; color: #2563eb; font-size: 13px; font-weight: 500; cursor: pointer; padding: 4px 8px;">Edit â†’</button>
+                        </div>
+                        <p style="font-size: 13px; color: #6b7280;">${data.comments}</p>
+                    </div>
+                `;
+            }
+
+            content.innerHTML = `
+                <div class="info-box green">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="margin: 0;">Assessment Summary</h3>
+                        <button onclick="goToStep(1)" style="background: none; border: none; color: #047857; font-size: 13px; font-weight: 500; cursor: pointer; padding: 4px 8px;">
+                            Edit Basic Info â†’
+                        </button>
+                    </div>
+                    <p><strong>Assessment Type:</strong> ${assessmentTypes.find(t => t.value === data.assessmentType)?.label || 'Not specified'}</p>
+                    <p><strong>Activity:</strong> ${data.activityName || 'Not specified'}</p>
+                    <p><strong>Date:</strong> ${data.date || 'Not specified'}</p>
+                    <p><strong>Assessed by:</strong> ${data.assessor || 'Not specified'}</p>
+                    ${!isPEEP ? `
+                    <p><strong>Total risks identified:</strong> ${totalRisks}</p>
+                    <div class="summary-grid">
+                        <div class="summary-item">â€¢ Person Risks: ${data.personRisks.length}</div>
+                        <div class="summary-item">â€¢ Environment Risks: ${data.environmentRisks.length}</div>
+                        <div class="summary-item">â€¢ Activity Risks: ${data.activityRisks.length}</div>
+                    </div>
+                    ` : ''}
+                </div>
+
+                ${renderTypeSpecificSummary()}
+                ${overviewContent}
+
+                <div class="info-box" style="margin-top: 20px;">
+                    <p><strong>Ready to submit your risk assessment?</strong> Click the button below to download your files.</p>
+                </div>
+
+                <div style="display: grid; gap: 12px; margin-top: 20px;">
+                    <button class="btn-large btn-primary" onclick="generateAndDownloadFiles()">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
+                        Download as HTML for Risk Assessment Submission
+                    </button>
+                    <p style="font-size: 13px; color: #6b7280; text-align: center; margin: -8px 0 8px 0;">
+                        <em>A JSON draft file will also be downloaded automatically for easy re-editing if needed</em>
+                    </p>
+                </div>
+
+                <div style="background: #f0fdf4; border: 2px solid #22c55e; border-radius: 8px; padding: 20px; margin-top: 30px;">
+                    <h4 style="color: #15803d; margin-bottom: 12px; font-size: 16px;">âœ… Automatic SharePoint Submission</h4>
+                    <p style="color: #166534; font-size: 14px; margin-bottom: 16px;">
+                        When you download your files, SharePoint will automatically open in a new tab. Simply drag and drop your downloaded files to complete the submission. You will receive automated updates once the file has been submitted.
+                    </p>
+                    <p style="color: #166534; font-size: 13px; font-style: italic;">
+                        ðŸ’¡ Tip: Keep the JSON draft file for yourself in case you need to edit the assessment later.
+                    </p>
+                </div>
+            `;
+
+            // Mark as no unsaved changes since they're now reviewing
+            hasUnsavedChanges = false;
+        }
+
+        function generateAndDownloadFiles() {
+            const isPreBooking = data.assessmentType === 'pre_booking';
+            const baseName = isPreBooking ? 'Pre_Booking_Approval' : 'Risk_Assessment';
+            const activityName = data.activityName || 'Untitled';
+            const assessorName = data.assessor || 'Unknown';
+            const dateStr = data.date || new Date().toISOString().split('T')[0];
+            
+            const safeFileName = (str) => str.replace(/[^a-z0-9]/gi, '_').replace(/_+/g, '_');
+            const fileName = `${baseName}_${safeFileName(activityName)}_${safeFileName(assessorName)}_${dateStr}`;
+            
+            // Open SharePoint immediately (to avoid popup blocker) - this window will stay in background
+            const sharePointWindow = window.open('https://kingswoodschool48.sharepoint.com/:f:/s/ITSupportSharedFiles/EvTs47rn521MntfLcwupz7cBg4cprPKe7eChykPlVes9Dw', '_blank');
+            
+            // Show warning message
+            alert(
+                'Download has started\n\n' +
+                'Allow multiple downloads if/when prompted.\n\n' +
+                'The submission portal has opened in a new tab.'
+            );
+            
+            // Create JSON DRAFT for re-editing (using same format as saveDraft)
+            const draftData = {
+                ...data,
+                currentStep: currentStep,
+                lastSaved: new Date().toISOString(),
+                formVersion: FORM_VERSION
+            };
+            
+            // Download JSON DRAFT first
+            const jsonBlob = new Blob([JSON.stringify(draftData, null, 2)], { type: 'application/json' });
+            const jsonUrl = URL.createObjectURL(jsonBlob);
+            const jsonLink = document.createElement('a');
+            jsonLink.href = jsonUrl;
+            jsonLink.download = `${fileName}_DRAFT.json`;
+            document.body.appendChild(jsonLink);
+            jsonLink.click();
+            document.body.removeChild(jsonLink);
+            URL.revokeObjectURL(jsonUrl);
+            
+            // Wait 2 seconds, then download HTML (avoid browser multiple download alert)
+            setTimeout(() => {
+                generateHTML(fileName);
+                
+                // Wait 2 seconds after HTML downloads, then show success message
+                setTimeout(() => {
+                    alert(
+                        'âœ… Files downloaded successfully!\n\n' +
+                        'The SharePoint submission portal is open in another tab.\n\n' +
+                        'Please drag and drop your downloaded files to complete the submission.'
+                    );
+                    
+                    // Try to bring SharePoint window to front
+                    if (sharePointWindow && !sharePointWindow.closed) {
+                        sharePointWindow.focus();
+                    }
+                }, 2000);
+            }, 2000);
+            
+            hasUnsavedChanges = false;
+        }
+
+        function generateHTML(fileName) {
+            const formatRiskTable = (risks) => {
+                if (risks.length === 0) {
+                    return '<tr><td colspan="4" style="padding: 12px; text-align: center; color: #666;">No risks identified for this category</td></tr>';
+                }
+                return risks.map(risk => `
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #ccc; vertical-align: top;">${risk.hazard || '-'}</td>
+                        <td style="padding: 12px; border: 1px solid #ccc; vertical-align: top;">${risk.affected || '-'}</td>
+                        <td style="padding: 12px; border: 1px solid #ccc; vertical-align: top;">${risk.measures || '-'}</td>
+                        <td style="padding: 12px; border: 1px solid #ccc; vertical-align: top;">${risk.emergency || '-'}</td>
+                    </tr>
+                `).join('');
+            };
+
+            const formatTypeSpecificSection = () => {
+                const type = data.assessmentType;
+                const d = data.typeSpecific;
+                const typeName = assessmentTypes.find(t => t.value === type)?.label || '';
+                
+                let html = `<h2>${typeName} Details</h2>`;
+
+                switch(type) {
+                    case 'pre_booking':
+                        html += `
+                            <div style="margin-bottom: 30px;">
+                                <p><strong>Purpose of Trip:</strong><br>${(d.purpose || 'Not specified').replace(/\n/g, '<br>')}</p>
+                                <p><strong>Proposed Date of Trip:</strong> ${d.tripDate || 'Not specified'}</p>
+                                <p><strong>Alternate Suitable Dates:</strong><br>${(d.alternateDates || 'Not specified').replace(/\n/g, '<br>')}</p>
+                                <p><strong>Trip Timings:</strong> ${d.tripTimings || 'Not specified'}</p>
+                                <p><strong>Pupils:</strong> ${d.pupils || 'Not specified'}</p>
+                                <p><strong>Staff Attending:</strong><br>${(d.staffAttending || 'Not specified').replace(/\n/g, '<br>')}</p>
+                                <p><strong>Affected Specialist Teachers:</strong> ${(d.affectedTeachers && d.affectedTeachers.length > 0) ? d.affectedTeachers.join(', ') : 'None selected'}</p>
+                            </div>
+                        `;
+                        break;
+                    case 'school_trip':
+                        html += `
+                            <div style="margin-bottom: 30px;">
+                                <p><strong>Destination/Location (Include Address):</strong> ${d.destination || 'Not specified'}</p>
+                                <p><strong>Mode of Transport, Provider and Contact Details:</strong><br>${(d.transport || 'Not specified').replace(/\n/g, '<br>')}</p>
+                                <p><strong>Outbound Journey:</strong><br>Departure Time: ${d.outboundDepartureTime || 'Not specified'} | Return Time: ${d.outboundReturnTime || 'Not specified'}</p>
+                                <p><strong>Return Journey:</strong><br>Departure Time: ${d.returnDepartureTime || 'Not specified'} | Return Time: ${d.returnReturnTime || 'Not specified'}</p>
+                                <p><strong>Staff-to-Student Ratio:</strong> ${d.ratio || 'Not specified'}</p>
+                                <p><strong>Staff Members (Names, Contact Details and First Aid Qualified):</strong><br>${(d.staffNames || 'Not specified').replace(/\n/g, '<br>')}</p>
+                                <p><strong>Students (Names):</strong>${d.studentFileName ? ` <em>(Uploaded file: ${d.studentFileName})</em>` : ''}<br>${(d.studentNames || 'Not specified').replace(/\n/g, '<br>')}</p>
+                                <p><strong>Trip Leader Medical Acknowledgement:</strong> ${d.medicalAck ? 'Yes - Trip Leader acknowledges taking all medical information and ensuring staff awareness of pupil conditions' : 'Not acknowledged'}</p>
+                            </div>
+                        `;
+                        break;
+                    case 'onsite_event':
+                        html += `
+                            <div style="margin-bottom: 30px;">
+                                <p><strong>Expected Number of Visitors:</strong> ${d.visitors || 'Not specified'}</p>
+                                <p><strong>Expected Total Number of People:</strong> ${d.totalPeople || 'Not specified'}</p>
+                                <p><strong>Venue/Rooms Being Used:</strong> ${d.venue || 'Not specified'}</p>
+                                <p><strong>Type of Event:</strong> ${d.eventType || 'Not specified'}</p>
+                                <p><strong>Parking Arrangements:</strong> ${d.parking || 'Not specified'}</p>
+                                <p><strong>Timings of Event:</strong> ${d.timings || 'Not specified'}</p>
+                            </div>
+                        `;
+                        break;
+                    case 'curriculum_activity':
+                        html += `
+                            <div style="margin-bottom: 30px;">
+                                <p><strong>Activity Description:</strong></p>
+                                <p>${(d.activityDescription || 'Not specified').replace(/\n/g, '<br>')}</p>
+                            </div>
+                        `;
+                        break;
+                    case 'temporary_disability':
+                        html += `
+                            <div style="margin-bottom: 30px;">
+                                <p><strong>Name of Injured Party:</strong> ${d.injuredName || 'Not specified'}</p>
+                                <p><strong>Injury Sustained:</strong><br>${(d.injury || 'Not specified').replace(/\n/g, '<br>')}</p>
+                                <p><strong>Information from Medical Professional:</strong><br>${(d.medicalInfo || 'Not specified').replace(/\n/g, '<br>')}</p>
+                                <p><strong>Information from Parents:</strong><br>${(d.parentInfo || 'Not specified').replace(/\n/g, '<br>')}</p>
+                            </div>
+                        `;
+                        break;
+                    case 'peep':
+                        html += `
+                            <div style="margin-bottom: 30px;">
+                                <p><strong>Name of Individual:</strong> ${d.peepName || 'Not specified'}</p>
+                                <p><strong>Nature of Disability/Condition:</strong><br>${(d.disability || 'Not specified').replace(/\n/g, '<br>')}</p>
+                                <p><strong>Mobility/Assistance Requirements:</strong><br>${(d.mobilityNeeds || 'Not specified').replace(/\n/g, '<br>')}</p>
+                                <p><strong>Communication Needs:</strong><br>${(d.communicationNeeds || 'Not specified').replace(/\n/g, '<br>')}</p>
+                                <p><strong>Evacuation Procedures:</strong><br>${(d.evacuationProcedures || 'Not specified').replace(/\n/g, '<br>')}</p>
+                                <p><strong>Designated Assistance Personnel:</strong> ${d.assistancePersonnel || 'Not specified'}</p>
+                                <p><strong>Assembly Point Arrangements:</strong><br>${(d.assemblyPoint || 'Not specified').replace(/\n/g, '<br>')}</p>
+                                <p><strong>Equipment Required:</strong> ${d.equipment || 'Not specified'}</p>
+                            </div>
+                        `;
+                        break;
+                }
+                
+                return html;
+            };
+
+            const isPEEP = data.assessmentType === 'peep';
+            const typeName = assessmentTypes.find(t => t.value === data.assessmentType)?.label || '';
+
+            const html = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Risk Assessment - ${data.activityName}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+        h1 { text-align: center; color: #333; margin-bottom: 30px; }
+        .header-info { margin-bottom: 30px; }
+        .header-info p { margin: 5px 0; }
+        h2 { color: #444; margin-top: 40px; margin-bottom: 10px; border-bottom: 2px solid #333; padding-bottom: 5px; }
+        .category-description { font-style: italic; color: #666; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th { background-color: #f0f0f0; padding: 12px; text-align: left; border: 1px solid #ccc; font-weight: bold; }
+        td { padding: 12px; border: 1px solid #ccc; vertical-align: top; }
+        .comments-section { margin-top: 40px; padding: 15px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; }
+    
+        .school-logo {
+            height: 80px;
+            width: auto;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <h1>RISK ASSESSMENT</h1>
+    <h2 style="text-align: center; margin-top: -20px; margin-bottom: 30px; border: none; color: #666;">${typeName}</h2>
+    <div class="header-info">
+        <p><strong>Activity/Event:</strong> ${data.activityName || 'Not specified'}</p>
+        <p><strong>Date:</strong> ${data.date || 'Not specified'}</p>
+        <p><strong>Assessed by:</strong> ${data.assessor || 'Not specified'}</p>
+    </div>
+
+    ${formatTypeSpecificSection()}
+
+    ${!isPEEP ? `
+    <h2>Person Risks</h2>
+    <p class="category-description">Risks directly related to occurrence/event/activity (E.g., safeguarding, medical needs, injuries, lost child, Personal Protective Equipment)</p>
+    <table>
+        <thead>
+            <tr>
+                <th>What are the hazards involved in your proposed activity?</th>
+                <th>Who may be affected by them?</th>
+                <th>What measures need to be in place to minimise them? How have you put these measures in place?</th>
+                <th>What steps will be taken in an emergency?</th>
+            </tr>
+        </thead>
+        <tbody>${formatRiskTable(data.personRisks)}</tbody>
+    </table>
+
+    <h2>Environment Risks</h2>
+    <p class="category-description">Risks related to the area the activity is taking place (E.g., fire, storage, vehicle movements, security, falling tree debris, equipment failure, disposal of waste)</p>
+    <table>
+        <thead>
+            <tr>
+                <th>What are the hazards involved in your proposed activity?</th>
+                <th>Who may be affected by them?</th>
+                <th>What measures need to be in place to minimise them? How have you put these measures in place?</th>
+                <th>What steps will be taken in an emergency?</th>
+            </tr>
+        </thead>
+        <tbody>${formatRiskTable(data.environmentRisks)}</tbody>
+    </table>
+
+    <h2>Specific Activity Related Risks</h2>
+    <p class="category-description">Risks specific to the activity (E.g., using scalpels, animal husbandry, kiln, woodworking tools, sports specific)</p>
+    <table>
+        <thead>
+            <tr>
+                <th>What are the hazards involved in your proposed activity?</th>
+                <th>Who may be affected by them?</th>
+                <th>What measures need to be in place to minimise them? How have you put these measures in place?</th>
+                <th>What steps will be taken in an emergency?</th>
+            </tr>
+        </thead>
+        <tbody>${formatRiskTable(data.activityRisks)}</tbody>
+    </table>
+    ` : ''}
+
+    <div class="comments-section">
+        <h2 style="margin-top: 0;">Any Other Comments:</h2>
+        <p>${data.comments || 'No additional comments provided.'}</p>
+    </div>
+
+    <p style="margin-top: 40px; text-align: center; color: #666; font-size: 12px;">Generated on ${new Date().toLocaleDateString()}</p>
+</body>
+</html>`;
+
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName ? `${fileName}.html` : `Risk_Assessment_${data.activityName.replace(/\s+/g, '_') || 'Document'}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            hasUnsavedChanges = false;
+        }
+
+        function goToStep(stepIndex) {
+            currentStep = stepIndex;
+            renderStep();
+            updateProgress();
+            window.scrollTo(0, 0);
+        }
+
+        function nextStep() {
+            if (currentStep === 0 && !data.assessmentType) {
+                alert('Please select a risk assessment type.');
+                return;
+            }
+
+            if (currentStep === 1) {
+                if (!data.activityName || !data.date || !data.assessor) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+            }
+            
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                renderStep();
+                updateProgress();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                renderStep();
+                updateProgress();
+                window.scrollTo(0, 0);
+            }
+        }
+
+        initializeApp();
+        
+        // Service Worker Registration for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

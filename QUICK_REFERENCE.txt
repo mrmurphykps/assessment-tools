@@ -1,0 +1,90 @@
+# PWA Quick Reference Card
+
+## 📦 What You Have
+✅ Complete PWA package ready to deploy  
+✅ Both tools converted with offline support  
+✅ Professional home/launcher page  
+✅ App icons and configuration  
+
+---
+
+## 🚀 Deploy NOW (Choose One)
+
+### GitHub Pages (2 minutes):
+1. github.com → Sign up → New repository
+2. Upload all files from outputs folder
+3. Settings → Pages → Enable
+4. Get URL: `username.github.io/reponame`
+
+### Netlify (1 minute):
+1. netlify.com → Sign up
+2. Drag outputs folder to deploy
+3. Get URL: `yoursite.netlify.app`
+
+---
+
+## 👥 Staff Installation
+
+**Desktop (Chrome/Edge):**
+- Visit URL → Click install icon in address bar
+
+**iPhone/iPad:**
+- Safari → Share (□↑) → Add to Home Screen
+
+**Android:**
+- Chrome → Menu (⋮) → Add to Home Screen
+
+---
+
+## 🔄 Making Updates
+
+1. Edit HTML files
+2. Change version: `service-worker.js` line 1
+3. Re-upload to hosting
+4. Users see "Update Available" banner
+
+---
+
+## 🎨 Customise
+
+**App Name:** Edit `manifest.json`
+**Colours:** Edit `manifest.json`
+**Icons:** Replace files in `icons/` folder
+
+---
+
+## 📚 Documentation
+
+- **Quick Start:** QUICK_START.md (5-min guide)
+- **Full Docs:** README.md (everything)
+- **Summary:** PWA_SUMMARY.md (overview)
+
+---
+
+## ✨ Key Features
+
+- 📱 Installs like native app
+- 🔌 Works offline
+- ⚡ Loads instantly
+- 🔄 Auto-updates
+- 💾 Local data storage
+- 🏠 Home button navigation
+
+---
+
+## 🆘 Troubleshooting
+
+**Won't install?**  
+→ Must use HTTPS (GitHub/Netlify provide this)
+
+**Not working offline?**  
+→ Check Service Worker in DevTools (F12)
+
+**Updates not showing?**  
+→ Increment version in service-worker.js
+
+---
+
+**All files are in the outputs folder →**
+**Upload them to GitHub Pages or Netlify →**
+**You're done! 🎉**
