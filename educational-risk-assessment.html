@@ -1785,19 +1785,26 @@ function renderTypeSpecificSummary() {
             hasUnsavedChanges = false;
         }
 
-        function generateHTML() {
+function generateHTML() {
     const isAllergy = data.assessmentType === 'allergy';
+    const isPEEP = data.assessmentType === 'peep';
     const today = new Date().toISOString().split('T')[0];
 
-    const fileName = isAllergy
-        ? `Allergy_Risk_Assessment_${(data.typeSpecific.childName || 'Unknown').replace(/\s+/g, '_')}_${today}.html`
-        : `Risk_Assessment_${(data.activityName || 'Unknown').replace(/\s+/g, '_')}_${today}.html`;
+    // Determine filename based on type
+    let fileName;
+    if (isAllergy) {
+        fileName = `Allergy_Risk_Assessment_${(data.typeSpecific.childName || 'Unknown').replace(/\s+/g, '_')}_${today}.html`;
+    } else if (isPEEP) {
+        fileName = `PEEP_${(data.typeSpecific.peepName || 'Unknown').replace(/\s+/g, '_')}_${today}.html`;
+    } else {
+        fileName = `Risk_Assessment_${(data.activityName || 'Unknown').replace(/\s+/g, '_')}_${today}.html`;
+    }
 
     let htmlContent = `<!DOCTYPE html>
 <html lang="en-GB">
 <head>
     <meta charset="UTF-8">
-    <title>Risk Assessment - ${isAllergy ? (data.typeSpecific.childName || 'Unknown') : (data.activityName || 'Unknown')}</title>
+    <title>Risk Assessment - ${isAllergy ? (data.typeSpecific.childName || 'Unknown') : isPEEP ? (data.typeSpecific.peepName || 'Unknown') : (data.activityName || 'Unknown')}</title>
     <style>
         @page { size: A4; margin: 20mm; }
         body { font-family: Arial, sans-serif; margin: 0; padding: 20mm; line-height: 1.6; }
@@ -1812,19 +1819,20 @@ function renderTypeSpecificSummary() {
         th { background-color: #f0f0f0; font-weight: bold; }
         .risk-category { page-break-inside: avoid; }
         .footer { margin-top: 30px; text-align: center; color: #666; font-size: 12px; }
+        .highlight { background-color: #fff3cd; padding: 12px; border-left: 4px solid #ffc107; margin: 16px 0; }
+        .warning { background-color: #fee; padding: 12px; border-left: 4px solid #dc3545; margin: 16px 0; }
+        .info { background-color: #e7f3ff; padding: 12px; border-left: 4px solid #0d6efd; margin: 16px 0; }
     </style>
 </head>
-<body>
-    <h1>${isAllergy ? 'ALLERGY RISK ASSESSMENT' : 'RISK ASSESSMENT'}</h1>
-`;
+<body>`;
 
+    // ========== ALLERGY RISK ASSESSMENT ==========
     if (isAllergy) {
-        // *** KEEP YOUR EXISTING ALLERGY EXPORT LOGIC HERE ***
-        // If you’re happy with the current allergy export, paste that block back in.
-        // For now, I’ll just keep the header info and a minimal note:
-
         const d = data.typeSpecific || {};
+        
         htmlContent += `
+    <h1>ALLERGY RISK ASSESSMENT</h1>
+    
     <div class="header-info section">
         <p><strong>Child's Name:</strong> ${d.childName || 'Not specified'}</p>
         <p><strong>Year Group/Class:</strong> ${d.yearGroup || 'Not specified'}</p>
@@ -1832,56 +1840,187 @@ function renderTypeSpecificSummary() {
         <p><strong>Assessment Date:</strong> ${d.assessmentDate || 'Not specified'}</p>
         <p><strong>Completed By:</strong> ${d.completedBy || 'Not specified'} (${d.role || 'Not specified'})</p>
     </div>
-    <p><em>Allergy export structure can be kept as in your previous version; this is just a placeholder.</em></p>
-`;
-    } else {
-        // *********** NON-ALLERGY EXPORT ***********
 
-        const assessment = (typeof assessmentTypes !== 'undefined')
-            ? (assessmentTypes.find(t => t.value === data.assessmentType) || null)
-            : null;
-
-        htmlContent += `
-    <div class="header-info section">
-        <p><strong>Assessment Type:</strong> ${assessment ? assessment.label : (data.assessmentType || 'Not specified')}</p>
-        <p><strong>Activity/Event:</strong> ${data.activityName || 'Not specified'}</p>
-        <p><strong>Date:</strong> ${data.date || 'Not specified'}</p>
-        <p><strong>Assessed By:</strong> ${data.assessor || 'Not specified'}</p>
+    <h2>Allergy Information</h2>
+    <div class="section">
+        <p><strong>Allergy Type(s):</strong> ${d.allergies && d.allergies.length > 0 ? d.allergies.join(', ') : 'Not specified'}</p>
+        ${d.otherAllergies ? `<p><strong>Other Allergies:</strong> ${d.otherAllergies}</p>` : ''}
+        <p><strong>Severity Level:</strong> ${d.severity || 'Not specified'}</p>
+        <p><strong>Type of Reaction:</strong> ${d.reactionType || 'Not specified'}</p>
+        ${d.symptoms ? `<p><strong>Known Symptoms/Previous Reactions:</strong><br>${d.symptoms.replace(/\n/g, '<br>')}</p>` : ''}
     </div>
 `;
 
-        // === Form Details (typeSpecific) ===
-        const ts = data.typeSpecific || {};
-        const tsEntries = Object.entries(ts).filter(([key, value]) => {
-            if (value === null || value === undefined) return false;
-            if (typeof value === 'string' && value.trim() === '') return false;
-            if (Array.isArray(value) && value.length === 0) return false;
-            if (typeof value === 'object' && !Array.isArray(value)) return false; // skip nested objects
-            return true;
-        });
-
-        if (tsEntries.length > 0) {
+        if (d.severity === 'Severe') {
             htmlContent += `
-    <h2>Form Details</h2>
+    <div class="warning">
+        <p><strong>⚠️ SEVERE ALLERGY - ANAPHYLAXIS RISK</strong></p>
+        <p>This child has a severe allergy with risk of anaphylaxis. All staff must be aware of emergency procedures.</p>
+    </div>
+`;
+        }
+
+        if (d.medications && d.medications.length > 0) {
+            htmlContent += `
+    <h2>Medications</h2>
     <table>
+        <thead>
+            <tr>
+                <th>Medication Type</th>
+                <th>Strength</th>
+                <th>Dosage</th>
+            </tr>
+        </thead>
         <tbody>
 `;
-            tsEntries.forEach(([key, value]) => {
-                let display = value;
-                if (Array.isArray(display)) display = display.join(', ');
-                // use same label logic as review (if formatLabelFromKey exists)
-                let label;
-                if (typeof formatLabelFromKey === 'function') {
-                    label = formatLabelFromKey(key);
-                } else {
-                    label = key.replace(/^ts_/, '').replace(/_/g, ' ');
-                    label = label.replace(/([a-z])([A-Z])/g, '$1 $2');
-                    label = label.replace(/\b\w/g, c => c.toUpperCase());
-                }
+            d.medications.forEach(med => {
                 htmlContent += `
             <tr>
-                <th>${label}</th>
-                <td>${display}</td>
+                <td>${med.type || 'Not specified'}</td>
+                <td>${med.strength || 'Not specified'}</td>
+                <td>${med.dosage || 'Not specified'}</td>
+            </tr>
+`;
+            });
+            htmlContent += `
+        </tbody>
+    </table>
+
+    <div class="section">
+        <p><strong>Medication Location:</strong> ${d.medicationLocation || 'Not specified'}</p>
+    </div>
+`;
+        } else {
+            htmlContent += `
+    <h2>Medications</h2>
+    <div class="section">
+        <p><strong>Medication Location:</strong> ${d.medicationLocation || 'Not specified'}</p>
+        <p><em>No medications recorded</em></p>
+    </div>
+`;
+        }
+
+        htmlContent += `
+    <h2>Emergency Contacts</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Contact Type</th>
+                <th>Name</th>
+                <th>Phone Number</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Primary Contact</td>
+                <td>${d.primaryContactName || 'Not specified'}</td>
+                <td>${d.primaryContactPhone || 'Not specified'}</td>
+            </tr>
+            <tr>
+                <td>Secondary Contact</td>
+                <td>${d.secondaryContactName || 'Not specified'}</td>
+                <td>${d.secondaryContactPhone || 'Not specified'}</td>
+            </tr>
+        </tbody>
+    </table>
+`;
+
+        if (d.homeAddress) {
+            htmlContent += `
+    <div class="section">
+        <p><strong>Home Address:</strong><br>${d.homeAddress.replace(/\n/g, '<br>')}</p>
+    </div>
+`;
+        }
+
+        htmlContent += `
+    <h2>Location & Environment</h2>
+    <div class="section">
+        <p><strong>Primary Learning Location:</strong> ${d.primaryLocation || 'Not specified'}</p>
+        <p><strong>What3Words Emergency Location:</strong> ${d.w3w || 'Not specified'}</p>
+    </div>
+
+    <h2>Staff Awareness & Training</h2>
+    <div class="section">
+        <p><strong>Training Required:</strong> ${d.training && d.training.length > 0 ? d.training.join(', ') : 'Not specified'}</p>
+        ${d.staffInstructions ? `<p><strong>Specific Staff Instructions:</strong><br>${d.staffInstructions.replace(/\n/g, '<br>')}</p>` : ''}
+    </div>
+`;
+
+        if (d.activities && Object.keys(d.activities).length > 0) {
+            const activityLabels = {
+                crayons: 'Crayons/painting',
+                creative: 'Creative activities (craft paste/glue, pasta)',
+                science: 'Science activities (bird feeders, planting seeds, food)',
+                music: 'Musical instrument sharing (cross contamination)',
+                cooking: 'Cooking (food prep area and ingredients)',
+                mealtime: 'Meal time',
+                kitchen: 'Kitchen prepared food (allergy information available)',
+                packed: 'Packed lunches',
+                snacks: 'Snacks (allergy information available)',
+                drinks: 'Drinks',
+                celebrations: 'Celebrations (Birthday, Easter, etc.)',
+                handwashing: 'Hand washing (secondary school accessibility)',
+                indoorpe: 'Indoor play/PE (AAIs with child)',
+                outdoorpe: 'Outdoor play/PE (AAIs with child)',
+                field: 'School field (AAIs with child)',
+                forest: 'Forest school (AAIs with child)',
+                trips: 'Offsite trips (staff trained to use AAI)'
+            };
+
+            const hasActivities = Object.values(d.activities).some(a => a.notes || a.na);
+            
+            if (hasActivities) {
+                htmlContent += `
+    <h2>Activity Risk Management</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 40%;">Activity</th>
+                <th style="width: 50%;">Risk Management Notes</th>
+                <th style="width: 10%;">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+`;
+                Object.entries(activityLabels).forEach(([key, label]) => {
+                    const activity = d.activities[key] || { notes: '', na: false };
+                    if (activity.notes || activity.na) {
+                        htmlContent += `
+            <tr>
+                <td>${label}</td>
+                <td>${activity.notes ? activity.notes.replace(/\n/g, '<br>') : 'No notes provided'}</td>
+                <td style="text-align: center;">${activity.na ? 'N/A' : '✓'}</td>
+            </tr>
+`;
+                    }
+                });
+                htmlContent += `
+        </tbody>
+    </table>
+`;
+            }
+        }
+
+        if (d.actions && d.actions.length > 0) {
+            htmlContent += `
+    <h2>Management Actions</h2>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 25%;">Action Required</th>
+                <th style="width: 20%;">Responsible Person</th>
+                <th style="width: 55%;">Implementation Details</th>
+            </tr>
+        </thead>
+        <tbody>
+`;
+            d.actions.forEach(action => {
+                htmlContent += `
+            <tr>
+                <td>${action.title || 'Not specified'}</td>
+                <td>${action.responsible || 'Not specified'}</td>
+                <td>${action.details ? action.details.replace(/\n/g, '<br>') : 'Not specified'}</td>
             </tr>
 `;
             });
@@ -1890,11 +2029,129 @@ function renderTypeSpecificSummary() {
     </table>
 `;
         }
+    }
+    
+    // ========== PRE-BOOKING TRIP APPROVAL ==========
+    else if (data.assessmentType === 'pre_booking') {
+        const d = data.typeSpecific || {};
+        
+        htmlContent += `
+    <h1>PRE-BOOKING TRIP APPROVAL</h1>
+    
+    <div class="header-info section">
+        <p><strong>Activity/Event:</strong> ${data.activityName || 'Not specified'}</p>
+        <p><strong>Date:</strong> ${data.date || 'Not specified'}</p>
+        <p><strong>Assessed By:</strong> ${data.assessor || 'Not specified'}</p>
+    </div>
 
-        // === Risks ===
+    <div class="info">
+        <p><strong>ℹ️ Pre-Booking Requirements</strong></p>
+        <p>This form should be completed at least 1 term before the trip for improved calendar management.</p>
+    </div>
+
+    <h2>Trip Details</h2>
+    <div class="section">
+        <p><strong>Purpose of Trip:</strong><br>${d.purpose ? d.purpose.replace(/\n/g, '<br>') : 'Not specified'}</p>
+    </div>
+
+    <div class="section">
+        <p><strong>Proposed Date of Trip:</strong> ${d.tripDate || 'Not specified'}</p>
+        <p><strong>Alternate Suitable Dates:</strong><br>${d.alternateDates ? d.alternateDates.replace(/\n/g, '<br>') : 'Not specified'}</p>
+        <p><strong>Trip Timings (approx.):</strong> ${d.tripTimings || 'Not specified'}</p>
+    </div>
+
+    <h2>Participants</h2>
+    <div class="section">
+        <p><strong>Pupils:</strong> ${d.pupils || 'Not specified'}</p>
+        <p><strong>Staff Attending:</strong><br>${d.staffAttending ? d.staffAttending.replace(/\n/g, '<br>') : 'Not specified'}</p>
+    </div>
+`;
+
+        if (d.affectedTeachers && d.affectedTeachers.length > 0) {
+            htmlContent += `
+    <h2>Affected Specialist Teachers</h2>
+    <div class="highlight">
+        <p><strong>The following specialist teachers will be notified of this trip approval:</strong></p>
+        <ul>
+`;
+            d.affectedTeachers.forEach(email => {
+                htmlContent += `            <li>${email}</li>\n`;
+            });
+            htmlContent += `
+        </ul>
+    </div>
+`;
+        }
+    }
+    
+    // ========== SCHOOL TRIP / OFF-SITE VISIT ==========
+    else if (data.assessmentType === 'school_trip') {
+        const d = data.typeSpecific || {};
+        
+        htmlContent += `
+    <h1>SCHOOL TRIP / OFF-SITE VISIT</h1>
+    
+    <div class="header-info section">
+        <p><strong>Activity/Event:</strong> ${data.activityName || 'Not specified'}</p>
+        <p><strong>Date:</strong> ${data.date || 'Not specified'}</p>
+        <p><strong>Assessed By:</strong> ${data.assessor || 'Not specified'}</p>
+    </div>
+
+    <h2>Destination Details</h2>
+    <div class="section">
+        <p><strong>Destination/Location:</strong><br>${d.destination || 'Not specified'}</p>
+    </div>
+
+    <h2>Transport Arrangements</h2>
+    <div class="section">
+        <p><strong>Mode of Transport, Provider and Contact Details:</strong><br>${d.transport ? d.transport.replace(/\n/g, '<br>') : 'Not specified'}</p>
+    </div>
+
+    <h2>Journey Times</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Journey</th>
+                <th>Departure Time</th>
+                <th>Return Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Outbound</td>
+                <td>${d.outboundDepartureTime || 'Not specified'}</td>
+                <td>${d.outboundReturnTime || 'Not specified'}</td>
+            </tr>
+            <tr>
+                <td>Return</td>
+                <td>${d.returnDepartureTime || 'Not specified'}</td>
+                <td>${d.returnReturnTime || 'Not specified'}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Staffing</h2>
+    <div class="section">
+        <p><strong>Staff-to-Student Ratio:</strong> ${d.ratio || 'Not specified'}</p>
+        <p><strong>Staff Members (Names, Contact Details and First Aid Qualified):</strong><br>${d.staffNames ? d.staffNames.replace(/\n/g, '<br>') : 'Not specified'}</p>
+    </div>
+
+    <h2>Students Attending</h2>
+    <div class="section">
+        ${d.studentFileName ? `<p><strong>Student List File:</strong> ${d.studentFileName}</p>` : ''}
+        <p>${d.studentNames ? d.studentNames.replace(/\n/g, '<br>') : 'Not specified'}</p>
+    </div>
+
+    <h2>Medical Acknowledgement</h2>
+    <div class="${d.medicalAck ? 'section' : 'warning'}">
+        <p>${d.medicalAck ? '✓' : '⚠️'} <strong>${d.medicalAck ? 'Acknowledged:' : 'NOT ACKNOWLEDGED:'}</strong> ${d.medicalAck ? 'Trip leader acknowledges' : 'Trip leader must acknowledge'} taking all medical information and ensuring staff awareness of pupil conditions</p>
+    </div>
+`;
+
+        // Add risk tables
         function addRiskTable(title, risksArray) {
-    if (!risksArray || !risksArray.length) return;
-    htmlContent += `
+            if (!risksArray || !risksArray.length) return;
+            htmlContent += `
     <h2>${title}</h2>
     <table class="risk-category">
         <thead>
@@ -1907,8 +2164,8 @@ function renderTypeSpecificSummary() {
         </thead>
         <tbody>
 `;
-    risksArray.forEach(risk => {
-        htmlContent += `
+            risksArray.forEach(risk => {
+                htmlContent += `
             <tr>
                 <td>${(risk.hazard || '').trim() || 'Not specified'}</td>
                 <td>${(risk.affected || '').trim() || 'Not specified'}</td>
@@ -1916,17 +2173,313 @@ function renderTypeSpecificSummary() {
                 <td>${(risk.emergency || '').trim().replace(/\n/g, '<br>') || 'Not specified'}</td>
             </tr>
 `;
-    });
-    htmlContent += `
+            });
+            htmlContent += `
         </tbody>
     </table>
 `;
-}
+        }
+
         addRiskTable('Person Risks', data.personRisks || []);
         addRiskTable('Environment Risks', data.environmentRisks || []);
         addRiskTable('Activity Risks', data.activityRisks || []);
 
-        // === Additional Comments ===
+        if (data.comments && data.comments.trim() !== '') {
+            htmlContent += `
+    <h2>Additional Comments</h2>
+    <div class="section">
+        <p>${data.comments.replace(/\n/g, '<br>')}</p>
+    </div>
+`;
+        }
+    }
+    
+    // ========== ON-SITE EVENT ==========
+    else if (data.assessmentType === 'onsite_event') {
+        const d = data.typeSpecific || {};
+        
+        htmlContent += `
+    <h1>ON-SITE EVENT RISK ASSESSMENT</h1>
+    
+    <div class="header-info section">
+        <p><strong>Activity/Event:</strong> ${data.activityName || 'Not specified'}</p>
+        <p><strong>Date:</strong> ${data.date || 'Not specified'}</p>
+        <p><strong>Assessed By:</strong> ${data.assessor || 'Not specified'}</p>
+    </div>
+
+    <h2>Event Details</h2>
+    <table>
+        <tbody>
+            <tr>
+                <th style="width: 40%;">Type of Event</th>
+                <td>${d.eventType || 'Not specified'}</td>
+            </tr>
+            <tr>
+                <th>Timings of Event</th>
+                <td>${d.timings || 'Not specified'}</td>
+            </tr>
+            <tr>
+                <th>Venue/Rooms Being Used</th>
+                <td>${d.venue || 'Not specified'}</td>
+            </tr>
+            <tr>
+                <th>Expected Number of Visitors</th>
+                <td>${d.visitors || 'Not specified'}</td>
+            </tr>
+            <tr>
+                <th>Expected Total Number of People</th>
+                <td>${d.totalPeople || 'Not specified'}</td>
+            </tr>
+            <tr>
+                <th>Parking Arrangements</th>
+                <td>${d.parking ? d.parking.replace(/\n/g, '<br>') : 'Not specified'}</td>
+            </tr>
+        </tbody>
+    </table>
+`;
+
+        function addRiskTable(title, risksArray) {
+            if (!risksArray || !risksArray.length) return;
+            htmlContent += `
+    <h2>${title}</h2>
+    <table class="risk-category">
+        <thead>
+            <tr>
+                <th>Risk</th>
+                <th>Who Might Be Harmed</th>
+                <th>Controls / Mitigations</th>
+                <th>Emergency Procedures</th>
+            </tr>
+        </thead>
+        <tbody>
+`;
+            risksArray.forEach(risk => {
+                htmlContent += `
+            <tr>
+                <td>${(risk.hazard || '').trim() || 'Not specified'}</td>
+                <td>${(risk.affected || '').trim() || 'Not specified'}</td>
+                <td>${(risk.measures || '').trim().replace(/\n/g, '<br>') || 'Not specified'}</td>
+                <td>${(risk.emergency || '').trim().replace(/\n/g, '<br>') || 'Not specified'}</td>
+            </tr>
+`;
+            });
+            htmlContent += `
+        </tbody>
+    </table>
+`;
+        }
+
+        addRiskTable('Person Risks', data.personRisks || []);
+        addRiskTable('Environment Risks', data.environmentRisks || []);
+        addRiskTable('Activity Risks', data.activityRisks || []);
+
+        if (data.comments && data.comments.trim() !== '') {
+            htmlContent += `
+    <h2>Additional Comments</h2>
+    <div class="section">
+        <p>${data.comments.replace(/\n/g, '<br>')}</p>
+    </div>
+`;
+        }
+    }
+    
+    // ========== CURRICULUM ACTIVITY ==========
+    else if (data.assessmentType === 'curriculum_activity') {
+        const d = data.typeSpecific || {};
+        
+        htmlContent += `
+    <h1>CURRICULUM ACTIVITY RISK ASSESSMENT</h1>
+    
+    <div class="header-info section">
+        <p><strong>Activity/Event:</strong> ${data.activityName || 'Not specified'}</p>
+        <p><strong>Date:</strong> ${data.date || 'Not specified'}</p>
+        <p><strong>Assessed By:</strong> ${data.assessor || 'Not specified'}</p>
+    </div>
+
+    <h2>Activity Description</h2>
+    <div class="section">
+        <p><strong>Activity beyond expected classroom curriculum requiring additional assessment:</strong></p>
+        <p>${d.activityDescription ? d.activityDescription.replace(/\n/g, '<br>') : 'Not specified'}</p>
+    </div>
+`;
+
+        function addRiskTable(title, risksArray) {
+            if (!risksArray || !risksArray.length) return;
+            htmlContent += `
+    <h2>${title}</h2>
+    <table class="risk-category">
+        <thead>
+            <tr>
+                <th>Risk</th>
+                <th>Who Might Be Harmed</th>
+                <th>Controls / Mitigations</th>
+                <th>Emergency Procedures</th>
+            </tr>
+        </thead>
+        <tbody>
+`;
+            risksArray.forEach(risk => {
+                htmlContent += `
+            <tr>
+                <td>${(risk.hazard || '').trim() || 'Not specified'}</td>
+                <td>${(risk.affected || '').trim() || 'Not specified'}</td>
+                <td>${(risk.measures || '').trim().replace(/\n/g, '<br>') || 'Not specified'}</td>
+                <td>${(risk.emergency || '').trim().replace(/\n/g, '<br>') || 'Not specified'}</td>
+            </tr>
+`;
+            });
+            htmlContent += `
+        </tbody>
+    </table>
+`;
+        }
+
+        addRiskTable('Person Risks', data.personRisks || []);
+        addRiskTable('Environment Risks', data.environmentRisks || []);
+        addRiskTable('Activity Risks', data.activityRisks || []);
+
+        if (data.comments && data.comments.trim() !== '') {
+            htmlContent += `
+    <h2>Additional Comments</h2>
+    <div class="section">
+        <p>${data.comments.replace(/\n/g, '<br>')}</p>
+    </div>
+`;
+        }
+    }
+    
+    // ========== TEMPORARY DISABILITY ==========
+    else if (data.assessmentType === 'temporary_disability') {
+        const d = data.typeSpecific || {};
+        
+        htmlContent += `
+    <h1>TEMPORARY DISABILITY RISK ASSESSMENT</h1>
+    
+    <div class="header-info section">
+        <p><strong>Activity/Event:</strong> ${data.activityName || 'Not specified'}</p>
+        <p><strong>Date:</strong> ${data.date || 'Not specified'}</p>
+        <p><strong>Assessed By:</strong> ${data.assessor || 'Not specified'}</p>
+    </div>
+
+    <h2>Injured Party Details</h2>
+    <table>
+        <tbody>
+            <tr>
+                <th style="width: 40%;">Name of Injured Party</th>
+                <td>${d.injuredName || 'Not specified'}</td>
+            </tr>
+            <tr>
+                <th>Injury Sustained</th>
+                <td>${d.injury ? d.injury.replace(/\n/g, '<br>') : 'Not specified'}</td>
+            </tr>
+            <tr>
+                <th>Information from Medical Professional</th>
+                <td>${d.medicalInfo ? d.medicalInfo.replace(/\n/g, '<br>') : 'Not specified'}</td>
+            </tr>
+            <tr>
+                <th>Information from Parents</th>
+                <td>${d.parentInfo ? d.parentInfo.replace(/\n/g, '<br>') : 'Not specified'}</td>
+            </tr>
+        </tbody>
+    </table>
+`;
+
+        function addRiskTable(title, risksArray) {
+            if (!risksArray || !risksArray.length) return;
+            htmlContent += `
+    <h2>${title}</h2>
+    <table class="risk-category">
+        <thead>
+            <tr>
+                <th>Risk</th>
+                <th>Who Might Be Harmed</th>
+                <th>Controls / Mitigations</th>
+                <th>Emergency Procedures</th>
+            </tr>
+        </thead>
+        <tbody>
+`;
+            risksArray.forEach(risk => {
+                htmlContent += `
+            <tr>
+                <td>${(risk.hazard || '').trim() || 'Not specified'}</td>
+                <td>${(risk.affected || '').trim() || 'Not specified'}</td>
+                <td>${(risk.measures || '').trim().replace(/\n/g, '<br>') || 'Not specified'}</td>
+                <td>${(risk.emergency || '').trim().replace(/\n/g, '<br>') || 'Not specified'}</td>
+            </tr>
+`;
+            });
+            htmlContent += `
+        </tbody>
+    </table>
+`;
+        }
+
+        addRiskTable('Person Risks', data.personRisks || []);
+        addRiskTable('Environment Risks', data.environmentRisks || []);
+        addRiskTable('Activity Risks', data.activityRisks || []);
+
+        if (data.comments && data.comments.trim() !== '') {
+            htmlContent += `
+    <h2>Additional Comments</h2>
+    <div class="section">
+        <p>${data.comments.replace(/\n/g, '<br>')}</p>
+    </div>
+`;
+        }
+    }
+    
+    // ========== PEEP (Personal Emergency Evacuation Plan) ==========
+    else if (isPEEP) {
+        const d = data.typeSpecific || {};
+        
+        htmlContent += `
+    <h1>PERSONAL EMERGENCY EVACUATION PLAN (PEEP)</h1>
+    
+    <div class="header-info section">
+        <p><strong>Activity/Event:</strong> ${data.activityName || 'Not specified'}</p>
+        <p><strong>Date:</strong> ${data.date || 'Not specified'}</p>
+        <p><strong>Assessed By:</strong> ${data.assessor || 'Not specified'}</p>
+    </div>
+
+    <div class="warning">
+        <p><strong>⚠️ EMERGENCY EVACUATION PLAN</strong></p>
+        <p>This document outlines the specific evacuation procedures for an individual requiring assistance.</p>
+    </div>
+
+    <h2>Individual Details</h2>
+    <table>
+        <tbody>
+            <tr>
+                <th style="width: 40%;">Name of Individual</th>
+                <td>${d.peepName || 'Not specified'}</td>
+            </tr>
+            <tr>
+                <th>Nature of Disability/Condition</th>
+                <td>${d.disability ? d.disability.replace(/\n/g, '<br>') : 'Not specified'}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Assistance Requirements</h2>
+    <div class="section">
+        <p><strong>Mobility/Assistance Requirements:</strong><br>${d.mobilityNeeds ? d.mobilityNeeds.replace(/\n/g, '<br>') : 'Not specified'}</p>
+        <p><strong>Communication Needs:</strong><br>${d.communicationNeeds ? d.communicationNeeds.replace(/\n/g, '<br>') : 'Not specified'}</p>
+        <p><strong>Equipment Required:</strong> ${d.equipment || 'Not specified'}</p>
+    </div>
+
+    <h2>Evacuation Procedures</h2>
+    <div class="section">
+        ${d.evacuationProcedures ? d.evacuationProcedures.replace(/\n/g, '<br>') : 'Not specified'}
+    </div>
+
+    <h2>Personnel & Assembly Point</h2>
+    <div class="section">
+        <p><strong>Designated Assistance Personnel:</strong> ${d.assistancePersonnel || 'Not specified'}</p>
+        <p><strong>Assembly Point Arrangements:</strong><br>${d.assemblyPoint ? d.assemblyPoint.replace(/\n/g, '<br>') : 'Not specified'}</p>
+    </div>
+`;
+
         if (data.comments && data.comments.trim() !== '') {
             htmlContent += `
     <h2>Additional Comments</h2>
@@ -1937,6 +2490,7 @@ function renderTypeSpecificSummary() {
         }
     }
 
+    // ========== FOOTER ==========
     htmlContent += `
     <div class="footer">
         <p>Generated on ${new Date().toLocaleDateString('en-GB')}</p>
