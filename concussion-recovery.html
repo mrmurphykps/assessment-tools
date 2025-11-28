@@ -218,11 +218,11 @@
             margin-bottom: 6px;
         }
         .stage-activities li:before {
-            content: "âœ“";
-            position: absolute;
-            left: 0;
-            color: #10b981;
-            font-weight: bold;
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #10b981;
+    font-weight: bold;
         }
         .warning {
             background: #fef2f2;
@@ -504,11 +504,12 @@
             <div class="form-group">
                 <label>Concussion Severity Assessment *</label>
                 <select id="severity" onchange="showSeverityInfo()">
-                    <option value="">-- Select Severity --</option>
-                    <option value="mild">ðŸŸ© Mild - Minimal symptoms, quick recovery expected</option>
-                    <option value="moderate">ðŸŸ¨ Moderate - Standard symptoms requiring careful monitoring</option>
-                    <option value="severe">ðŸŸ¥ Severe - Significant symptoms, extended recovery needed</option>
-                </select>
+    <option value="">-- Select Severity --</option>
+    <option value="mild">🟢 Mild – Minimal symptoms, quick recovery expected</option>
+    <option value="moderate">🟠 Moderate – Standard symptoms requiring careful monitoring</option>
+    <option value="severe">🔴 Severe – Significant symptoms, extended recovery needed</option>
+</select>
+
             </div>
             <div id="severityInfo" class="hidden severity-info">
                 <div id="severityDescription"></div>
@@ -531,23 +532,26 @@
                 </div>
             </div>
             <div class="download-section">
-                <h3 style="color: #d61b26; margin-bottom: 16px;">Download & Submit</h3>
-                <div class="button-group">
-                    <button class="btn-success" onclick="saveDraft()" style="width: auto; padding: 12px 32px;">
-                        ðŸ’¾ Save Draft (Editable)
-                    </button>
-                    <button class="btn-primary" onclick="downloadProtocol()" style="width: auto; padding: 12px 32px;">
-                        ðŸ“„ Download Protocol Document
-                    </button>
-                    <button class="btn-secondary" onclick="printToPDF()" style="width: auto; padding: 12px 32px;">
-                        ðŸ–¨ï¸ Print to PDF
-                    </button>
-                </div>
+    <h3 style="color: #d61b26; margin-bottom: 16px;">Download & Submit</h3>
+    <div class="button-group">
+        <button class="btn-success" onclick="saveDraft()" style="width: auto; padding: 12px 32px;">
+            💾 Save Draft (Editable)
+        </button>
+
+        <button class="btn-primary" onclick="downloadProtocol()" style="width: auto; padding: 12px 32px;">
+            📄 Download Protocol Document
+        </button>
+
+        <button class="btn-secondary" onclick="printToPDF()" style="width: auto; padding: 12px 32px;">
+            🖨️ Print to PDF
+        </button>
+    </div>
+</div>
                 <div style="background: #fafafa; border: 2px solid #d61b26; border-radius: 8px; padding: 20px; margin-top: 20px;">
-                    <h4 style="color: #d61b26; margin-bottom: 12px; font-size: 16px;">ðŸ“¤ Submit Your Protocol</h4>
-                    <p style="color: #6e605d; font-size: 14px; margin-bottom: 16px;">
-                        After downloading your protocol document, please submit it to the school records:
-                    </p>
+    <h4 style="color: #d61b26; margin-bottom: 12px; font-size: 16px;">📨 Submit Your Protocol</h4>
+    <p style="color: #6e605d; font-size: 14px; margin-bottom: 16px;">
+        After downloading your protocol document, please submit it to the school records:
+    </p>
                     <a href="https://kingswoodschool48.sharepoint.com/:f:/s/ITSupportSharedFiles/EvTs47rn521MntfLcwupz7cBg4cprPKe7eChykPlVes9Dw" target="_blank" style="display: inline-block; background: #d61b26; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.2s;">
                         Submit to School Records â†’
                     </a>
@@ -754,16 +758,17 @@
                 const hasValidComment = typeof rawComment === 'string' && rawComment.trim() !== '';
                 let commentHTML = '';
                 if (hasValidComment) {
-                    commentHTML = `
-                        <div class="stage-comment">
-                            <div class="stage-comment-label">ðŸ“ Timeline Amendment Note:</div>
-                            <div>${rawComment}</div>
-                            <button class="add-comment-btn" onclick="editStageComment(${index}, event)">Edit Note</button>
-                        </div>
-                    `;
-                } else {
-                    commentHTML = `<button class="add-comment-btn" onclick="editStageComment(${index}, event)">+ Add Timeline Note</button>`;
-                }
+    commentHTML = `
+        <div class="stage-comment">
+            <div class="stage-comment-label">📝 Timeline Amendment Note:</div>
+            <div>${rawComment}</div>
+            <button class="add-comment-btn" onclick="editStageComment(${index}, event)">Edit Note</button>
+        </div>
+    `;
+} else {
+    commentHTML = `<button class="add-comment-btn" onclick="editStageComment(${index}, event)">+ Add Timeline Note</button>`;
+}
+
                 // --- END CORRECTED SECTION ---
 
                 stageDiv.innerHTML = `
@@ -783,7 +788,8 @@
                     <ul class="stage-activities">
                         ${stage.activities.map(activity => `<li>${activity}</li>`).join('')}
                     </ul>
-                    ${stage.warning ? `<div class="warning">âš ï¸ ${stage.warning}</div>` : ''}
+                    ${stage.warning ? `<div class="warning">⚠️ ${stage.warning}</div>
+` : ''}
                 `;
                 stagesContainer.appendChild(stageDiv);
             });
@@ -846,7 +852,7 @@
             const editorDiv = document.createElement('div');
             editorDiv.className = 'stage-comment comment-editor';
             editorDiv.innerHTML = `
-                <div class="stage-comment-label">ðŸ“ Timeline Amendment Note:</div>
+                <div class="stage-comment-label">📝 Timeline Amendment Note:</div>
                 <textarea class="comment-textarea" rows="3" placeholder="Explain why the timeline date was adjusted...">${currentComment}</textarea>
                 <div style="margin-top: 6px; display: flex; gap: 8px;">
                     <button class="btn-success" style="padding: 4px 10px; font-size: 10px;" onclick="saveStageComment(${stageIndex}, this)">Save Note</button>
@@ -985,13 +991,14 @@
                 <ul>
                     ${stage.activities.map(activity => `<li>${activity}</li>`).join('')}
                 </ul>
-                ${stage.warning ? `<div class="warning">âš ï¸ ${stage.warning}</div>` : ''}
+                ${stage.warning ? `<div class="warning">⚠️ ${stage.warning}</div>` : ''}
+
             </div>
         `;
     }).join('')}
     </div>
     <div class="alert">
-        <strong>âš ï¸ Medical Review Required</strong>
+        <strong>⚠️ Medical Review Required</strong>
         <p>If symptoms continue beyond 28 days (after ${formatDate(addDays(concussionDateObj, 28))}), the student must remain out of sport and seek medical advice from their GP, which may require specialist referral and review.</p>
     </div>
     <p style="margin-top: 8px; text-align: center; color: #6b7280; font-size: 7px; line-height: 1.2;">
@@ -1114,13 +1121,13 @@
                 <ul>
                     ${stage.activities.map(activity => `<li>${activity}</li>`).join('')}
                 </ul>
-                ${stage.warning ? `<div class="warning">âš ï¸ ${stage.warning}</div>` : ''}
+                ${stage.warning ? `<div class="warning">⚠️ ${stage.warning}</div>` : ''}
             </div>
         `;
     }).join('')}
     </div>
     <div class="alert">
-        <strong>âš ï¸ Medical Review Required</strong>
+        <strong>⚠️ Medical Review Required</strong>
         <p>If symptoms continue beyond 28 days (after ${formatDate(addDays(concussionDateObj, 28))}), the student must remain out of sport and seek medical advice from their GP, which may require specialist referral and review.</p>
     </div>
     <p style="margin-top: 8px; text-align: center; color: #6b7280; font-size: 7px; line-height: 1.2;">
@@ -1227,18 +1234,6 @@
             event.target.value = '';
         }
         
-        // Service Worker Registration for PWA functionality
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then((registration) => {
-                        console.log('Service Worker registered:', registration.scope);
-                    })
-                    .catch((error) => {
-                        console.log('Service Worker registration failed:', error);
-                    });
-            });
-        }
     </script>
 </body>
 </html>
