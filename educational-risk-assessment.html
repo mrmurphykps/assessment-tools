@@ -1146,74 +1146,103 @@
         }
 
         function renderSchoolTripForm() {
-            const d = data.typeSpecific;
-            return `
-                <div class="info-box">
-                    <h3>School Trip / Off-site Visit Details</h3>
-                    <p>Please provide all logistical information for this trip.</p>
+    const d = data.typeSpecific;
+    return `
+        <div class="info-box">
+            <h3>School Trip / Off-site Visit Details</h3>
+            <p>Please provide all logistical information for this trip.</p>
+        </div>
+        <div class="form-group">
+            <label>Destination/Location (Include Address) *</label>
+            <input type="text" id="ts_destination" value="${d.destination || ''}" placeholder="e.g., Science Museum, Exhibition Road, South Kensington, London SW7 2DD">
+        </div>
+        <div class="form-group">
+            <label>Mode of Transport, Provider and Contact Details *</label>
+            <textarea id="ts_transport" rows="3" placeholder="e.g., Coach provided by ABC Travel, Contact: John Smith, Tel: 01234 567890">${d.transport || ''}</textarea>
+        </div>
+        
+        <h3 style="margin-top: 24px; margin-bottom: 16px; color: #374151;">Journey Details</h3>
+        
+        <div class="form-group">
+            <label>Outbound Journey *</label>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">When do you leave and when do you arrive at your destination?</p>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Departure Date</label>
+                    <input type="date" id="ts_outboundDepartureDate" value="${d.outboundDepartureDate || ''}">
                 </div>
                 <div class="form-group">
-                    <label>Destination/Location (Include Address) *</label>
-                    <input type="text" id="ts_destination" value="${d.destination || ''}" placeholder="e.g., Science Museum, Exhibition Road, South Kensington, London SW7 2DD">
+                    <label>Departure Time</label>
+                    <input type="time" id="ts_outboundDepartureTime" value="${d.outboundDepartureTime || ''}">
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Arrival Date (at destination)</label>
+                    <input type="date" id="ts_outboundArrivalDate" value="${d.outboundArrivalDate || ''}">
                 </div>
                 <div class="form-group">
-                    <label>Mode of Transport, Provider and Contact Details *</label>
-                    <textarea id="ts_transport" rows="3" placeholder="e.g., Coach provided by ABC Travel, Contact: John Smith, Tel: 01234 567890">${d.transport || ''}</textarea>
+                    <label>Arrival Time (at destination)</label>
+                    <input type="time" id="ts_outboundArrivalTime" value="${d.outboundArrivalTime || ''}">
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Return Journey *</label>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">When do you leave the destination and when do you arrive back at school?</p>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Departure Date (from destination)</label>
+                    <input type="date" id="ts_returnDepartureDate" value="${d.returnDepartureDate || ''}">
                 </div>
                 <div class="form-group">
-                    <label>Outbound Journey *</label>
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>Departure Time</label>
-                            <input type="time" id="ts_outboundDepartureTime" value="${d.outboundDepartureTime || ''}">
-                        </div>
-                        <div class="form-group">
-                            <label>Return Time</label>
-                            <input type="time" id="ts_outboundReturnTime" value="${d.outboundReturnTime || ''}">
-                        </div>
-                    </div>
+                    <label>Departure Time (from destination)</label>
+                    <input type="time" id="ts_returnDepartureTime" value="${d.returnDepartureTime || ''}">
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Arrival Date (back at school)</label>
+                    <input type="date" id="ts_returnArrivalDate" value="${d.returnArrivalDate || ''}">
                 </div>
                 <div class="form-group">
-                    <label>Return Journey *</label>
-                    <div class="grid-2">
-                        <div class="form-group">
-                            <label>Departure Time</label>
-                            <input type="time" id="ts_returnDepartureTime" value="${d.returnDepartureTime || ''}">
-                        </div>
-                        <div class="form-group">
-                            <label>Return Time</label>
-                            <input type="time" id="ts_returnReturnTime" value="${d.returnReturnTime || ''}">
-                        </div>
-                    </div>
+                    <label>Arrival Time (back at school)</label>
+                    <input type="time" id="ts_returnArrivalTime" value="${d.returnArrivalTime || ''}">
                 </div>
-                <div class="form-group">
-                    <label>Staff-to-Student Ratio *</label>
-                    <input type="text" id="ts_ratio" value="${d.ratio || ''}" placeholder="e.g., 1:10">
-                </div>
-                <div class="form-group">
-                    <label>Staff Members (Names, Contact Details and First Aid Qualified) *</label>
-                    <textarea id="ts_staffNames" rows="5" placeholder="e.g., Mrs Sarah Smith - 07123 456789 - First Aid Qualified&#10;Mr John Jones - 07987 654321 - Not First Aid Qualified">${d.staffNames || ''}</textarea>
-                </div>
-                <div class="form-group">
-                    <label>Students (Names) *</label>
-                    <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">You can either type the names below or upload a file</p>
-                    <textarea id="ts_studentNames" rows="5" placeholder="List all students attending (one per line)&#10;e.g.,&#10;Emma Thompson&#10;James Wilson&#10;Sarah Brown">${d.studentNames || ''}</textarea>
-                    <div style="margin-top: 12px;">
-                        <label class="btn-secondary" style="display: inline-block; cursor: pointer; padding: 8px 16px; font-size: 13px;">
-                            📎   Upload Student List File (Optional)
-                            <input type="file" id="ts_studentFile" accept=".txt,.csv,.doc,.docx" style="display: none;" onchange="handleStudentFileUpload(event)">
-                        </label>
-                        <span id="studentFileName" style="margin-left: 10px; font-size: 13px; color: #6b7280;"></span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="ts_medicalAck" ${d.medicalAck ? 'checked' : ''}>
-                        <label for="ts_medicalAck">I acknowledge that I will take all medical information held by the school and ensure that all staff are aware of pupil conditions *</label>
-                    </div>
-                </div>
-            `;
-        }
+            </div>
+        </div>
+
+        <h3 style="margin-top: 24px; margin-bottom: 16px; color: #374151;">Staffing & Participants</h3>
+        
+        <div class="form-group">
+            <label>Staff-to-Student Ratio *</label>
+            <input type="text" id="ts_ratio" value="${d.ratio || ''}" placeholder="e.g., 1:10">
+        </div>
+        <div class="form-group">
+            <label>Staff Members (Names, Contact Details and First Aid Qualified) *</label>
+            <textarea id="ts_staffNames" rows="5" placeholder="e.g., Mrs Sarah Smith - 07123 456789 - First Aid Qualified&#10;Mr John Jones - 07987 654321 - Not First Aid Qualified">${d.staffNames || ''}</textarea>
+        </div>
+        <div class="form-group">
+            <label>Students (Names) *</label>
+            <p style="font-size: 13px; color: #6b7280; margin-bottom: 8px;">You can either type the names below or upload a file</p>
+            <textarea id="ts_studentNames" rows="5" placeholder="List all students attending (one per line)&#10;e.g.,&#10;Emma Thompson&#10;James Wilson&#10;Sarah Brown">${d.studentNames || ''}</textarea>
+            <div style="margin-top: 12px;">
+                <label class="btn-secondary" style="display: inline-block; cursor: pointer; padding: 8px 16px; font-size: 13px;">
+                    📎 Upload Student List File (Optional)
+                    <input type="file" id="ts_studentFile" accept=".txt,.csv,.doc,.docx" style="display: none;" onchange="handleStudentFileUpload(event)">
+                </label>
+                <span id="studentFileName" style="margin-left: 10px; font-size: 13px; color: #6b7280;"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="ts_medicalAck" ${d.medicalAck ? 'checked' : ''}>
+                <label for="ts_medicalAck">I acknowledge that I will take all medical information held by the school and ensure that all staff are aware of pupil conditions *</label>
+            </div>
+        </div>
+    `;
+}
 
         function renderOnsiteEventForm() {
             const d = data.typeSpecific;
@@ -1782,46 +1811,80 @@ function renderReview() {
 
         // ========== SCHOOL TRIP DETAILS ==========
         else if (data.assessmentType === 'school_trip') {
-            html += `
-                <div class="info-box blue" style="margin-top: 20px;">
-                    <h4>School Trip / Off-site Visit Details</h4>
-                    <div class="detail-row">
-                        <div class="detail-label">Destination/Location:</div>
-                        <div class="detail-value">${d.destination || 'Not specified'}</div>
-                    </div>
-                    <div class="detail-row">
-                        <div class="detail-label">Mode of Transport:</div>
-                        <div class="detail-value">${d.transport ? d.transport.replace(/\n/g, '<br>') : 'Not specified'}</div>
-                    </div>
-                    <div class="detail-row">
-                        <div class="detail-label">Outbound Journey:</div>
-                        <div class="detail-value">Depart ${d.outboundDepartureTime || 'Not specified'} | Arrive ${d.outboundReturnTime || 'Not specified'}</div>
-                    </div>
-                    <div class="detail-row">
-                        <div class="detail-label">Return Journey:</div>
-                        <div class="detail-value">Depart ${d.returnDepartureTime || 'Not specified'} | Arrive ${d.returnReturnTime || 'Not specified'}</div>
-                    </div>
-                    <div class="detail-row">
-                        <div class="detail-label">Staff-to-Student Ratio:</div>
-                        <div class="detail-value">${d.ratio || 'Not specified'}</div>
-                    </div>
-                    <div class="detail-row">
-                        <div class="detail-label">Staff Members:</div>
-                        <div class="detail-value">${d.staffNames ? d.staffNames.replace(/\n/g, '<br>') : 'Not specified'}</div>
-                    </div>
-                    <div class="detail-row">
-                        <div class="detail-label">Students Attending:</div>
-                        <div class="detail-value">${d.studentFileName ? `<em>File uploaded: ${d.studentFileName}</em><br>` : ''}${d.studentNames ? d.studentNames.replace(/\n/g, '<br>') : 'Not specified'}</div>
-                    </div>
-                    <div class="detail-row">
-                        <div class="detail-label">Medical Information:</div>
-                        <div class="detail-value" style="color: ${d.medicalAck ? '#16a34a' : '#991b1b'}; font-weight: 600;">
-                            ${d.medicalAck ? '✓ Trip leader acknowledges responsibility for medical information' : '⚠️ Medical acknowledgement required'}
-                        </div>
-                    </div>
+    // Helper function to format date and time nicely
+    const formatDateTime = (date, time) => {
+        if (!date && !time) return 'Not specified';
+        if (!date) return time || 'Not specified';
+        if (!time) return date || 'Not specified';
+        
+        // Format the date nicely
+        const dateObj = new Date(date + 'T00:00:00');
+        const dateStr = dateObj.toLocaleDateString('en-GB', { 
+            weekday: 'short', 
+            day: 'numeric', 
+            month: 'short', 
+            year: 'numeric' 
+        });
+        
+        return `${dateStr} at ${time}`;
+    };
+
+    html += `
+        <div class="info-box blue" style="margin-top: 20px;">
+            <h4>School Trip / Off-site Visit Details</h4>
+            <div class="detail-row">
+                <div class="detail-label">Destination/Location:</div>
+                <div class="detail-value">${d.destination || 'Not specified'}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Mode of Transport:</div>
+                <div class="detail-value">${d.transport ? d.transport.replace(/\n/g, '<br>') : 'Not specified'}</div>
+            </div>
+        </div>
+
+        <div class="info-box blue" style="margin-top: 20px;">
+            <h4>Journey Schedule</h4>
+            <div class="detail-row">
+                <div class="detail-label">Outbound Departure:</div>
+                <div class="detail-value">${formatDateTime(d.outboundDepartureDate, d.outboundDepartureTime)}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Arrival at Destination:</div>
+                <div class="detail-value">${formatDateTime(d.outboundArrivalDate, d.outboundArrivalTime)}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Return Departure:</div>
+                <div class="detail-value">${formatDateTime(d.returnDepartureDate, d.returnDepartureTime)}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Arrival Back at School:</div>
+                <div class="detail-value">${formatDateTime(d.returnArrivalDate, d.returnArrivalTime)}</div>
+            </div>
+        </div>
+
+        <div class="info-box blue" style="margin-top: 20px;">
+            <h4>Staffing & Participants</h4>
+            <div class="detail-row">
+                <div class="detail-label">Staff-to-Student Ratio:</div>
+                <div class="detail-value">${d.ratio || 'Not specified'}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Staff Members:</div>
+                <div class="detail-value">${d.staffNames ? d.staffNames.replace(/\n/g, '<br>') : 'Not specified'}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Students Attending:</div>
+                <div class="detail-value">${d.studentFileName ? `<em>File uploaded: ${d.studentFileName}</em><br>` : ''}${d.studentNames ? d.studentNames.replace(/\n/g, '<br>') : 'Not specified'}</div>
+            </div>
+            <div class="detail-row">
+                <div class="detail-label">Medical Information:</div>
+                <div class="detail-value" style="color: ${d.medicalAck ? '#16a34a' : '#991b1b'}; font-weight: 600;">
+                    ${d.medicalAck ? '✓ Trip leader acknowledges responsibility for medical information' : '⚠️ Medical acknowledgement required'}
                 </div>
-            `;
-        }
+            </div>
+        </div>
+    `;
+}
 
         // ========== ON-SITE EVENT DETAILS ==========
         else if (data.assessmentType === 'onsite_event') {
@@ -2426,113 +2489,143 @@ function generateHTML() {
     
     // ========== SCHOOL TRIP / OFF-SITE VISIT ==========
     else if (data.assessmentType === 'school_trip') {
-        const d = data.typeSpecific || {};
-        
-        htmlContent += `
-    <h1>SCHOOL TRIP / OFF-SITE VISIT</h1>
+    const d = data.typeSpecific || {};
     
-    <div class="header-info section">
-        <p><strong>Activity/Event:</strong> ${data.activityName || 'Not specified'}</p>
-        <p><strong>Date:</strong> ${data.date || 'Not specified'}</p>
-        <p><strong>Assessed By:</strong> ${data.assessor || 'Not specified'}</p>
-    </div>
+    // Helper function to format date and time for HTML export
+    const formatDateTime = (date, time) => {
+        if (!date && !time) return 'Not specified';
+        if (!date) return time || 'Not specified';
+        if (!time) return date || 'Not specified';
+        
+        // Format the date nicely
+        const dateObj = new Date(date + 'T00:00:00');
+        const dateStr = dateObj.toLocaleDateString('en-GB', { 
+            weekday: 'short', 
+            day: 'numeric', 
+            month: 'short', 
+            year: 'numeric' 
+        });
+        
+        return `${dateStr} at ${time}`;
+    };
+    
+    htmlContent += `
+<h1>SCHOOL TRIP / OFF-SITE VISIT</h1>
 
-    <h2>Destination Details</h2>
-    <div class="section">
-        <p><strong>Destination/Location:</strong><br>${d.destination || 'Not specified'}</p>
-    </div>
+<div class="header-info section">
+    <p><strong>Activity/Event:</strong> ${data.activityName || 'Not specified'}</p>
+    <p><strong>Date:</strong> ${data.date || 'Not specified'}</p>
+    <p><strong>Assessed By:</strong> ${data.assessor || 'Not specified'}</p>
+</div>
 
-    <h2>Transport Arrangements</h2>
-    <div class="section">
-        <p><strong>Mode of Transport, Provider and Contact Details:</strong><br>${d.transport ? d.transport.replace(/\n/g, '<br>') : 'Not specified'}</p>
-    </div>
+<h2>Destination Details</h2>
+<div class="section">
+    <p><strong>Destination/Location:</strong><br>${d.destination || 'Not specified'}</p>
+</div>
 
-    <h2>Journey Times</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Journey</th>
-                <th>Departure Time</th>
-                <th>Return Time</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Outbound</td>
-                <td>${d.outboundDepartureTime || 'Not specified'}</td>
-                <td>${d.outboundReturnTime || 'Not specified'}</td>
-            </tr>
-            <tr>
-                <td>Return</td>
-                <td>${d.returnDepartureTime || 'Not specified'}</td>
-                <td>${d.returnReturnTime || 'Not specified'}</td>
-            </tr>
-        </tbody>
-    </table>
+<h2>Transport Arrangements</h2>
+<div class="section">
+    <p><strong>Mode of Transport, Provider and Contact Details:</strong><br>${d.transport ? d.transport.replace(/\n/g, '<br>') : 'Not specified'}</p>
+</div>
 
-    <h2>Staffing</h2>
-    <div class="section">
-        <p><strong>Staff-to-Student Ratio:</strong> ${d.ratio || 'Not specified'}</p>
-        <p><strong>Staff Members (Names, Contact Details and First Aid Qualified):</strong><br>${d.staffNames ? d.staffNames.replace(/\n/g, '<br>') : 'Not specified'}</p>
-    </div>
+<h2>Journey Schedule</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Journey Stage</th>
+            <th>Date & Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Outbound Departure (from school)</td>
+            <td>${formatDateTime(d.outboundDepartureDate, d.outboundDepartureTime)}</td>
+        </tr>
+        <tr>
+            <td>Arrival at Destination</td>
+            <td>${formatDateTime(d.outboundArrivalDate, d.outboundArrivalTime)}</td>
+        </tr>
+        <tr>
+            <td>Return Departure (from destination)</td>
+            <td>${formatDateTime(d.returnDepartureDate, d.returnDepartureTime)}</td>
+        </tr>
+        <tr>
+            <td>Arrival Back at School</td>
+            <td>${formatDateTime(d.returnArrivalDate, d.returnArrivalTime)}</td>
+        </tr>
+    </tbody>
+</table>
 
-    <h2>Students Attending</h2>
-    <div class="section">
-        ${d.studentFileName ? `<p><strong>Student List File:</strong> ${d.studentFileName}</p>` : ''}
-        <p>${d.studentNames ? d.studentNames.replace(/\n/g, '<br>') : 'Not specified'}</p>
-    </div>
+<h2>Staffing</h2>
+<div class="section">
+    <p><strong>Staff-to-Student Ratio:</strong> ${d.ratio || 'Not specified'}</p>
+    <p><strong>Staff Members (Names, Contact Details and First Aid Qualified):</strong><br>${d.staffNames ? d.staffNames.replace(/\n/g, '<br>') : 'Not specified'}</p>
+</div>
 
-    <h2>Medical Acknowledgement</h2>
-    <div class="${d.medicalAck ? 'section' : 'warning'}">
-        <p>${d.medicalAck ? '✓' : '⚠️'} <strong>${d.medicalAck ? 'Acknowledged:' : 'NOT ACKNOWLEDGED:'}</strong> ${d.medicalAck ? 'Trip leader acknowledges' : 'Trip leader must acknowledge'} taking all medical information and ensuring staff awareness of pupil conditions</p>
-    </div>
+<h2>Students Attending</h2>
+<div class="section">
+    ${d.studentFileName ? `<p><strong>Student List File:</strong> ${d.studentFileName}</p>` : ''}
+    <p>${d.studentNames ? d.studentNames.replace(/\n/g, '<br>') : 'Not specified'}</p>
+</div>
+
+<h2>Medical Acknowledgement</h2>
+<div class="${d.medicalAck ? 'section' : 'warning'}">
+    <p>${d.medicalAck ? '✓' : '⚠️'} <strong>${d.medicalAck ? 'Acknowledged:' : 'NOT ACKNOWLEDGED:'}</strong> ${d.medicalAck ? 'Trip leader acknowledges' : 'Trip leader must acknowledge'} taking all medical information and ensuring staff awareness of pupil conditions</p>
+</div>
 `;
 
-        // Add risk tables
-        function addRiskTable(title, risksArray) {
-            if (!risksArray || !risksArray.length) return;
+    // Add risk tables
+    function addRiskTable(title, risksArray) {
+        if (!risksArray || !risksArray.length) return;
+        htmlContent += `
+<h2>${title}</h2>
+<table class="risk-category">
+    <thead>
+        <tr>
+            <th>Risk</th>
+            <th>Who Might Be Harmed</th>
+            <th>Controls / Mitigations</th>
+            <th>Emergency Procedures</th>
+        </tr>
+    </thead>
+    <tbody>
+`;
+        risksArray.forEach(risk => {
             htmlContent += `
-    <h2>${title}</h2>
-    <table class="risk-category">
-        <thead>
-            <tr>
-                <th>Risk</th>
-                <th>Who Might Be Harmed</th>
-                <th>Controls / Mitigations</th>
-                <th>Emergency Procedures</th>
-            </tr>
-        </thead>
-        <tbody>
+        <tr>
+            <td>${(risk.hazard || '').trim() || 'Not specified'}</td>
+            <td>${(risk.affected || '').trim() || 'Not specified'}</td>
+            <td>${(risk.measures || '').trim().replace(/\n/g, '<br>') || 'Not specified'}</td>
+            <td>${(risk.emergency || '').trim().replace(/\n/g, '<br>') || 'Not specified'}</td>
+        </tr>
 `;
-            risksArray.forEach(risk => {
-                htmlContent += `
-            <tr>
-                <td>${(risk.hazard || '').trim() || 'Not specified'}</td>
-                <td>${(risk.affected || '').trim() || 'Not specified'}</td>
-                <td>${(risk.measures || '').trim().replace(/\n/g, '<br>') || 'Not specified'}</td>
-                <td>${(risk.emergency || '').trim().replace(/\n/g, '<br>') || 'Not specified'}</td>
-            </tr>
+        });
+        htmlContent += `
+    </tbody>
+</table>
 `;
-            });
-            htmlContent += `
-        </tbody>
-    </table>
-`;
-        }
-
-        addRiskTable('Person Risks', data.personRisks || []);
-        addRiskTable('Environment Risks', data.environmentRisks || []);
-        addRiskTable('Activity Risks', data.activityRisks || []);
-
-        if (data.comments && data.comments.trim() !== '') {
-            htmlContent += `
-    <h2>Additional Comments</h2>
-    <div class="section">
-        <p>${data.comments.replace(/\n/g, '<br>')}</p>
-    </div>
-`;
-        }
     }
+
+    addRiskTable('Person Risks', data.personRisks || []);
+    addRiskTable('Environment Risks', data.environmentRisks || []);
+    addRiskTable('Activity Risks', data.activityRisks || []);
+
+    if (data.comments && data.comments.trim() !== '') {
+        htmlContent += `
+<h2>Additional Comments</h2>
+<div class="section">
+    <p>${data.comments.replace(/\n/g, '<br>')}</p>
+</div>
+`;
+    }
+}
+
+
+
+
+
+
+
     
     // ========== ON-SITE EVENT ==========
     else if (data.assessmentType === 'onsite_event') {
