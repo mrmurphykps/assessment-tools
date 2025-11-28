@@ -1664,14 +1664,11 @@ function renderTypeSpecificSummary() {
             
             document.getElementById('comments').addEventListener('input', (e) => { data.comments = e.target.value; markUnsaved(); });
         }
-
-       // ENHANCED renderReview() FUNCTION
-// Replace your existing renderReview() function with this one
-
 function renderReview() {
     const content = document.getElementById('stepContent');
     const isAllergy = data.assessmentType === 'allergy';
     const isPEEP = data.assessmentType === 'peep';
+    const totalRisks = data.personRisks.length + data.environmentRisks.length + data.activityRisks.length;
     let html = '';
 
     // ========== ALLERGY RISK ASSESSMENT REVIEW ==========
@@ -1732,15 +1729,14 @@ function renderReview() {
     
     // ========== NON-ALLERGY ASSESSMENTS REVIEW ==========
     else {
-        const totalRisks = data.personRisks.length + data.environmentRisks.length + data.activityRisks.length;
         const d = data.typeSpecific || {};
         
-        // Basic summary
+        // Basic summary header
         html = `
             <div class="info-box green">
                 <h3>Assessment Summary</h3>
                 <p><strong>Assessment Type:</strong> ${assessmentTypes.find(t => t.value === data.assessmentType)?.label || 'Not specified'}</p>
-                <p><strong>Activity:</strong> ${data.activityName || 'Not specified'}</p>
+                <p><strong>Activity/Event:</strong> ${data.activityName || 'Not specified'}</p>
                 <p><strong>Date:</strong> ${data.date || 'Not specified'}</p>
                 <p><strong>Assessed by:</strong> ${data.assessor || 'Not specified'}</p>
                 ${!isPEEP ? `<p><strong>Total risks identified:</strong> ${totalRisks}</p>` : ''}
@@ -1754,7 +1750,7 @@ function renderReview() {
                     <h4>Pre-Booking Trip Details</h4>
                     <div class="detail-row">
                         <div class="detail-label">Purpose of Trip:</div>
-                        <div class="detail-value">${d.purpose || 'Not specified'}</div>
+                        <div class="detail-value">${d.purpose ? d.purpose.replace(/\n/g, '<br>') : 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Proposed Date:</div>
@@ -1762,10 +1758,10 @@ function renderReview() {
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Alternate Dates:</div>
-                        <div class="detail-value">${d.alternateDates || 'Not specified'}</div>
+                        <div class="detail-value">${d.alternateDates ? d.alternateDates.replace(/\n/g, '<br>') : 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Trip Timings:</div>
+                        <div class="detail-label">Trip Timings (approx.):</div>
                         <div class="detail-value">${d.tripTimings || 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
@@ -1777,7 +1773,7 @@ function renderReview() {
                         <div class="detail-value">${d.staffAttending ? d.staffAttending.replace(/\n/g, '<br>') : 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Affected Teachers:</div>
+                        <div class="detail-label">Affected Specialist Teachers:</div>
                         <div class="detail-value">${d.affectedTeachers && d.affectedTeachers.length > 0 ? d.affectedTeachers.join(', ') : 'None selected'}</div>
                     </div>
                 </div>
@@ -1788,25 +1784,25 @@ function renderReview() {
         else if (data.assessmentType === 'school_trip') {
             html += `
                 <div class="info-box blue" style="margin-top: 20px;">
-                    <h4>School Trip Details</h4>
+                    <h4>School Trip / Off-site Visit Details</h4>
                     <div class="detail-row">
-                        <div class="detail-label">Destination:</div>
+                        <div class="detail-label">Destination/Location:</div>
                         <div class="detail-value">${d.destination || 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Transport Details:</div>
+                        <div class="detail-label">Mode of Transport:</div>
                         <div class="detail-value">${d.transport ? d.transport.replace(/\n/g, '<br>') : 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Outbound Journey:</div>
-                        <div class="detail-value">Depart: ${d.outboundDepartureTime || 'Not specified'} | Return: ${d.outboundReturnTime || 'Not specified'}</div>
+                        <div class="detail-value">Depart ${d.outboundDepartureTime || 'Not specified'} | Arrive ${d.outboundReturnTime || 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Return Journey:</div>
-                        <div class="detail-value">Depart: ${d.returnDepartureTime || 'Not specified'} | Return: ${d.returnReturnTime || 'Not specified'}</div>
+                        <div class="detail-value">Depart ${d.returnDepartureTime || 'Not specified'} | Arrive ${d.returnReturnTime || 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Staff:Student Ratio:</div>
+                        <div class="detail-label">Staff-to-Student Ratio:</div>
                         <div class="detail-value">${d.ratio || 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
@@ -1814,12 +1810,14 @@ function renderReview() {
                         <div class="detail-value">${d.staffNames ? d.staffNames.replace(/\n/g, '<br>') : 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Students:</div>
-                        <div class="detail-value">${d.studentFileName ? `<em>Uploaded file: ${d.studentFileName}</em><br>` : ''}${d.studentNames ? d.studentNames.replace(/\n/g, '<br>') : 'Not specified'}</div>
+                        <div class="detail-label">Students Attending:</div>
+                        <div class="detail-value">${d.studentFileName ? `<em>File uploaded: ${d.studentFileName}</em><br>` : ''}${d.studentNames ? d.studentNames.replace(/\n/g, '<br>') : 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Medical Acknowledgement:</div>
-                        <div class="detail-value">${d.medicalAck ? '✓ Acknowledged' : '⚠️ Not acknowledged'}</div>
+                        <div class="detail-label">Medical Information:</div>
+                        <div class="detail-value" style="color: ${d.medicalAck ? '#16a34a' : '#991b1b'}; font-weight: 600;">
+                            ${d.medicalAck ? '✓ Trip leader acknowledges responsibility for medical information' : '⚠️ Medical acknowledgement required'}
+                        </div>
                     </div>
                 </div>
             `;
@@ -1831,27 +1829,27 @@ function renderReview() {
                 <div class="info-box blue" style="margin-top: 20px;">
                     <h4>On-site Event Details</h4>
                     <div class="detail-row">
-                        <div class="detail-label">Event Type:</div>
+                        <div class="detail-label">Type of Event:</div>
                         <div class="detail-value">${d.eventType || 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Venue/Rooms:</div>
+                        <div class="detail-label">Venue/Rooms Being Used:</div>
                         <div class="detail-value">${d.venue || 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Expected Visitors:</div>
+                        <div class="detail-label">Expected Number of Visitors:</div>
                         <div class="detail-value">${d.visitors || 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Total People:</div>
+                        <div class="detail-label">Expected Total People:</div>
                         <div class="detail-value">${d.totalPeople || 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Timings:</div>
+                        <div class="detail-label">Timings of Event:</div>
                         <div class="detail-value">${d.timings || 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Parking:</div>
+                        <div class="detail-label">Parking Arrangements:</div>
                         <div class="detail-value">${d.parking ? d.parking.replace(/\n/g, '<br>') : 'Not specified'}</div>
                     </div>
                 </div>
@@ -1877,19 +1875,19 @@ function renderReview() {
                 <div class="info-box blue" style="margin-top: 20px;">
                     <h4>Temporary Disability Details</h4>
                     <div class="detail-row">
-                        <div class="detail-label">Injured Party:</div>
+                        <div class="detail-label">Name of Injured Party:</div>
                         <div class="detail-value">${d.injuredName || 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Injury:</div>
+                        <div class="detail-label">Injury Sustained:</div>
                         <div class="detail-value">${d.injury ? d.injury.replace(/\n/g, '<br>') : 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Medical Info:</div>
+                        <div class="detail-label">Information from Medical Professional:</div>
                         <div class="detail-value">${d.medicalInfo ? d.medicalInfo.replace(/\n/g, '<br>') : 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Parent Info:</div>
+                        <div class="detail-label">Information from Parents:</div>
                         <div class="detail-value">${d.parentInfo ? d.parentInfo.replace(/\n/g, '<br>') : 'Not specified'}</div>
                     </div>
                 </div>
@@ -1900,17 +1898,17 @@ function renderReview() {
         else if (isPEEP) {
             html += `
                 <div class="info-box blue" style="margin-top: 20px;">
-                    <h4>PEEP Details</h4>
+                    <h4>Personal Emergency Evacuation Plan Details</h4>
                     <div class="detail-row">
-                        <div class="detail-label">Individual Name:</div>
+                        <div class="detail-label">Name of Individual:</div>
                         <div class="detail-value">${d.peepName || 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Disability/Condition:</div>
+                        <div class="detail-label">Nature of Disability/Condition:</div>
                         <div class="detail-value">${d.disability ? d.disability.replace(/\n/g, '<br>') : 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Mobility Needs:</div>
+                        <div class="detail-label">Mobility/Assistance Requirements:</div>
                         <div class="detail-value">${d.mobilityNeeds ? d.mobilityNeeds.replace(/\n/g, '<br>') : 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
@@ -1922,11 +1920,11 @@ function renderReview() {
                         <div class="detail-value">${d.evacuationProcedures ? d.evacuationProcedures.replace(/\n/g, '<br>') : 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Assistance Personnel:</div>
+                        <div class="detail-label">Designated Assistance Personnel:</div>
                         <div class="detail-value">${d.assistancePersonnel || 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
-                        <div class="detail-label">Assembly Point:</div>
+                        <div class="detail-label">Assembly Point Arrangements:</div>
                         <div class="detail-value">${d.assemblyPoint ? d.assemblyPoint.replace(/\n/g, '<br>') : 'Not specified'}</div>
                     </div>
                     <div class="detail-row">
@@ -1937,114 +1935,134 @@ function renderReview() {
             `;
         }
 
-        // ========== RISKS OVERVIEW (for non-PEEP assessments) ==========
-        if (!isPEEP && totalRisks > 0) {
-            html += `
-                <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-top: 20px;">
-                    <h3 style="font-weight: 600; color: #1f2937; margin-bottom: 16px; font-size: 17px;">Risk Assessment Details</h3>
-            `;
-
-            // Person Risks
-            if (data.personRisks.length > 0) {
+        // ========== CRITICAL: RISKS SECTION (for non-PEEP assessments) ==========
+        // This is what was missing - the risks display between form details and submission
+        if (!isPEEP) {
+            if (totalRisks > 0) {
                 html += `
-                    <h4 style="color: #374151; margin-top: 20px;">Person Risks (${data.personRisks.length})</h4>
+                    <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-top: 20px;">
+                        <h3 style="font-weight: 600; color: #1f2937; margin-bottom: 16px; font-size: 17px;">Risk Assessment</h3>
+                        <p style="color: #6b7280; font-size: 14px; margin-bottom: 20px;">Review all identified risks below before submission.</p>
                 `;
-                data.personRisks.forEach((risk, index) => {
-                    html += `
-                        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
-                            <div style="font-size: 13px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">Risk #${index + 1}</div>
-                            <div class="detail-row">
-                                <div class="detail-label">Hazard:</div>
-                                <div class="detail-value">${risk.hazard || 'Not specified'}</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Affected:</div>
-                                <div class="detail-value">${risk.affected || 'Not specified'}</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Measures:</div>
-                                <div class="detail-value">${risk.measures || 'Not specified'}</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Emergency Steps:</div>
-                                <div class="detail-value">${risk.emergency || 'Not specified'}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
 
-            // Environment Risks
-            if (data.environmentRisks.length > 0) {
+                // Person Risks
+                if (data.personRisks.length > 0) {
+                    html += `
+                        <div style="margin-bottom: 24px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <h4 style="color: #374151; margin: 0;">Person Risks (${data.personRisks.length})</h4>
+                                <button onclick="goToStep(${steps.findIndex(s => s.id === 'person')})" style="background: none; border: none; color: #2563eb; font-size: 13px; font-weight: 500; cursor: pointer; padding: 4px 8px;">Edit →</button>
+                            </div>
+                    `;
+                    data.personRisks.forEach((risk, index) => {
+                        html += `
+                            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                                <div style="font-size: 13px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">Risk #${index + 1}</div>
+                                <div class="detail-row">
+                                    <div class="detail-label">What are the hazards?</div>
+                                    <div class="detail-value">${risk.hazard || 'Not specified'}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Who may be affected?</div>
+                                    <div class="detail-value">${risk.affected || 'Not specified'}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">What measures are in place?</div>
+                                    <div class="detail-value">${risk.measures || 'Not specified'}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Emergency steps:</div>
+                                    <div class="detail-value">${risk.emergency || 'Not specified'}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                // Environment Risks
+                if (data.environmentRisks.length > 0) {
+                    html += `
+                        <div style="margin-bottom: 24px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <h4 style="color: #374151; margin: 0;">Environment Risks (${data.environmentRisks.length})</h4>
+                                <button onclick="goToStep(${steps.findIndex(s => s.id === 'environment')})" style="background: none; border: none; color: #2563eb; font-size: 13px; font-weight: 500; cursor: pointer; padding: 4px 8px;">Edit →</button>
+                            </div>
+                    `;
+                    data.environmentRisks.forEach((risk, index) => {
+                        html += `
+                            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                                <div style="font-size: 13px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">Risk #${index + 1}</div>
+                                <div class="detail-row">
+                                    <div class="detail-label">What are the hazards?</div>
+                                    <div class="detail-value">${risk.hazard || 'Not specified'}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Who may be affected?</div>
+                                    <div class="detail-value">${risk.affected || 'Not specified'}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">What measures are in place?</div>
+                                    <div class="detail-value">${risk.measures || 'Not specified'}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Emergency steps:</div>
+                                    <div class="detail-value">${risk.emergency || 'Not specified'}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                // Activity Risks
+                if (data.activityRisks.length > 0) {
+                    html += `
+                        <div style="margin-bottom: 24px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <h4 style="color: #374151; margin: 0;">Specific Activity Risks (${data.activityRisks.length})</h4>
+                                <button onclick="goToStep(${steps.findIndex(s => s.id === 'activity')})" style="background: none; border: none; color: #2563eb; font-size: 13px; font-weight: 500; cursor: pointer; padding: 4px 8px;">Edit →</button>
+                            </div>
+                    `;
+                    data.activityRisks.forEach((risk, index) => {
+                        html += `
+                            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                                <div style="font-size: 13px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">Risk #${index + 1}</div>
+                                <div class="detail-row">
+                                    <div class="detail-label">What are the hazards?</div>
+                                    <div class="detail-value">${risk.hazard || 'Not specified'}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Who may be affected?</div>
+                                    <div class="detail-value">${risk.affected || 'Not specified'}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">What measures are in place?</div>
+                                    <div class="detail-value">${risk.measures || 'Not specified'}</div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-label">Emergency steps:</div>
+                                    <div class="detail-value">${risk.emergency || 'Not specified'}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                }
+
+                html += '</div>'; // Close risks overview container
+            } else {
+                // No risks added yet
                 html += `
-                    <h4 style="color: #374151; margin-top: 20px;">Environment Risks (${data.environmentRisks.length})</h4>
+                    <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-top: 20px;">
+                        <h3 style="font-weight: 600; color: #1f2937; margin-bottom: 16px; font-size: 17px;">Risk Assessment</h3>
+                        <p style="color: #6b7280; font-size: 13px;">No risks have been identified yet. Please go back and add risks in the Person Risks, Environment Risks, and Activity Risks sections.</p>
+                    </div>
                 `;
-                data.environmentRisks.forEach((risk, index) => {
-                    html += `
-                        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
-                            <div style="font-size: 13px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">Risk #${index + 1}</div>
-                            <div class="detail-row">
-                                <div class="detail-label">Hazard:</div>
-                                <div class="detail-value">${risk.hazard || 'Not specified'}</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Affected:</div>
-                                <div class="detail-value">${risk.affected || 'Not specified'}</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Measures:</div>
-                                <div class="detail-value">${risk.measures || 'Not specified'}</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Emergency Steps:</div>
-                                <div class="detail-value">${risk.emergency || 'Not specified'}</div>
-                            </div>
-                        </div>
-                    `;
-                });
             }
-
-            // Activity Risks
-            if (data.activityRisks.length > 0) {
-                html += `
-                    <h4 style="color: #374151; margin-top: 20px;">Activity Risks (${data.activityRisks.length})</h4>
-                `;
-                data.activityRisks.forEach((risk, index) => {
-                    html += `
-                        <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
-                            <div style="font-size: 13px; font-weight: 500; color: #6b7280; margin-bottom: 8px;">Risk #${index + 1}</div>
-                            <div class="detail-row">
-                                <div class="detail-label">Hazard:</div>
-                                <div class="detail-value">${risk.hazard || 'Not specified'}</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Affected:</div>
-                                <div class="detail-value">${risk.affected || 'Not specified'}</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Measures:</div>
-                                <div class="detail-value">${risk.measures || 'Not specified'}</div>
-                            </div>
-                            <div class="detail-row">
-                                <div class="detail-label">Emergency Steps:</div>
-                                <div class="detail-value">${risk.emergency || 'Not specified'}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-
-            html += '</div>'; // Close risks overview
-        } else if (!isPEEP) {
-            html += `
-                <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px; margin-top: 20px;">
-                    <h3 style="font-weight: 600; color: #1f2937; margin-bottom: 16px; font-size: 17px;">Risk Assessment Details</h3>
-                    <p style="color: #6b7280; font-size: 13px;">No risks have been identified yet.</p>
-                </div>
-            `;
         }
 
-        // Additional Comments
+        // Additional Comments (if any)
         if (data.comments && data.comments.trim() !== '') {
             html += `
                 <div class="info-box" style="margin-top: 20px;">
@@ -2057,7 +2075,7 @@ function renderReview() {
 
     // ========== SUBMISSION INSTRUCTIONS (All Types) ==========
     html += `
-        <div class="info-box" style="margin-top: 20px; background: #fef3c7; border-color: #f59e0b;">
+        <div class="info-box" style="margin-top: 30px; background: #fef3c7; border-color: #f59e0b;">
             <h3 style="color: #92400e;">📋 Submission Process</h3>
             <p style="color: #92400e;">Follow these three steps to complete your risk assessment submission:</p>
         </div>
@@ -2095,6 +2113,16 @@ function renderReview() {
 
     content.innerHTML = html;
     hasUnsavedChanges = false;
+}
+
+// Helper function to navigate to a specific step (needed for Edit buttons)
+function goToStep(stepIndex) {
+    if (stepIndex >= 0 && stepIndex < steps.length) {
+        currentStep = stepIndex;
+        renderStep();
+        updateProgress();
+        window.scrollTo(0, 0);
+    }
 }
 
 function generateHTML() {
