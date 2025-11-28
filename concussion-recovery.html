@@ -1,0 +1,1244 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Structured concussion assessment and recovery monitoring tool">
+    <meta name="theme-color" content="#d61b26">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Concussion Protocol">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/icon-152x152.png">
+    <title>Concussion Recovery Protocol - With Severity Logic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: linear-gradient(135deg, #fef3f3 0%, #fafafa 100%);
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+            overflow: hidden;
+        }
+        .header {
+            background: #d61b26;
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .header p {
+            font-size: 14px;
+            opacity: 0.95;
+        }
+        .warning-banner {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 20px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .warning-banner .icon {
+            font-size: 20px;
+            color: #ef4444;
+            flex-shrink: 0;
+        }
+        .warning-banner p {
+            font-size: 13px;
+            color: #991b1b;
+            line-height: 1.5;
+        }
+        .form-section {
+            padding: 24px 30px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .form-section h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #d61b26;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #d61b26;
+            box-shadow: 0 0 0 3px rgba(214, 27, 38, 0.1);
+        }
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .severity-info {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+        .severity-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .severity-mild {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .severity-moderate {
+            background: #fed7aa;
+            color: #92400e;
+        }
+        .severity-severe {
+            background: #fecaca;
+            color: #991b1b;
+        }
+        .timeline {
+            margin-top: 20px;
+        }
+        .stage {
+            background: #fcfcfc;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .stage:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        .stage.current {
+            background: linear-gradient(to right, #fef3f3 0%, white 100%);
+            border-color: #d61b26;
+            border-width: 2px;
+        }
+        .stage.completed {
+            opacity: 0.7;
+            background: #f9fafb;
+        }
+        .stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .stage-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .stage-date {
+            font-size: 13px;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 4px 12px;
+            border-radius: 6px;
+        }
+        .stage-day {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 2px;
+        }
+        .stage.current .stage-date {
+            background: #fef3f3;
+            color: #d61b26;
+            font-weight: 500;
+        }
+        .stage.completed .stage-date {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .stage-description {
+            font-size: 13px;
+            color: #4b5563;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+        .stage-activities {
+            list-style: none;
+            margin-top: 10px;
+        }
+        .stage-activities li {
+            font-size: 13px;
+            color: #6b7280;
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 6px;
+        }
+        .stage-activities li:before {
+            content: "âœ“";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+        .warning {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #991b1b;
+        }
+        .medical-note {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .medical-note strong {
+            color: #991b1b;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        .medical-note p {
+            color: #7f1d1d;
+            font-size: 13px;
+        }
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: #d61b26;
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .btn-primary:hover {
+            background: #b01620;
+        }
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        .btn-success {
+            background: #16a34a;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-success:hover {
+            background: #15803d;
+        }
+        .upload-draft-section {
+            background: #f0f9ff;
+            border: 2px dashed #0ea5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 30px;
+            text-align: center;
+        }
+        .upload-draft-section h3 {
+            color: #0c4a6e;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .upload-draft-section p {
+            color: #075985;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+        .date-editable {
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+        .date-editable:hover {
+            background: #fef3f3;
+            border: 1px solid #d61b26;
+        }
+        .date-input-wrapper {
+            display: inline-block;
+        }
+        .date-input-wrapper input[type="date"] {
+            padding: 4px 8px;
+            border: 1px solid #d61b26;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #78350f;
+        }
+        .stage-comment {
+            background: #fffbeb;
+            border: 1px solid #fbbf24;
+            border-radius: 4px;
+            padding: 6px;
+            margin-top: 8px;
+            font-size: 11px;
+            font-style: italic;
+            color: #92400e;
+        }
+        .stage-comment-label {
+            font-weight: 600;
+            font-style: normal;
+            margin-bottom: 3px;
+            color: #78350f;
+        }
+        .stage-comment textarea {
+            width: 100%;
+            min-height: 50px;
+            padding: 6px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 11px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        .stage-comment textarea:focus {
+            outline: none;
+            border-color: #d61b26;
+        }
+        .add-comment-btn {
+            background: #fef3c7;
+            border: 1px dashed #f59e0b;
+            color: #92400e;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            margin-top: 6px;
+            transition: all 0.2s;
+        }
+        .add-comment-btn:hover {
+            background: #fde68a;
+            border-color: #d97706;
+        }
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .download-section {
+            padding: 24px 30px;
+            background: #f9fafb;
+            border-top: 1px solid #e5e7eb;
+        }
+        @media (max-width: 640px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .stage-header {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+        .home-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #d61b26;
+            color: white;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: all 0.2s;
+        }
+        .home-button:hover {
+            background: #b71620;
+            transform: scale(1.1);
+        }
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                border: none;
+            }
+            button {
+                display: none;
+            }
+            .stage {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Home Button -->
+    <button class="home-button" onclick="window.location.href='/'" title="Return to Home">
+        🏠
+    </button>
+    
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Concussion Recovery Protocol</h1>
+            <p>Graduated Return to Activity, School and Sport - With Severity Assessment</p>
+        </div>
+        <div class="warning-banner">
+            <span class="icon">⚠️</span>
+            <p>
+                <strong>Important:</strong> This protocol is for guidance only. All students with suspected concussion should be assessed by qualified medical personnel. 
+                If symptoms persist beyond 28 days, remain out of sport and seek medical advice from a GP. Always follow professional medical guidance.
+            </p>
+        </div>
+        <div class="upload-draft-section">
+            <h3>📂 Resume Previous Draft</h3>
+            <p>Upload a previously saved draft to continue editing or adjust stage dates</p>
+            <input type="file" id="uploadDraft" accept=".json" style="display: none;" onchange="loadDraft(event)">
+            <button class="btn-secondary" onclick="document.getElementById('uploadDraft').click()" style="width: auto; padding: 10px 24px;">
+                Choose Draft File
+            </button>
+        </div>
+        <div class="form-section">
+            <h2>Student Information</h2>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Name *</label>
+                    <input type="text" id="studentName" placeholder="Student&#39;s full name">
+                </div>
+                <div class="form-group">
+                    <label>Year Group *</label>
+                    <input type="text" id="yearGroup" placeholder="e.g., Year 8">
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Class/Form *</label>
+                    <input type="text" id="classForm" placeholder="e.g., 8B">
+                </div>
+                <div class="form-group">
+                    <label>Date of Concussion/Suspected Concussion *</label>
+                    <input type="date" id="concussionDate">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>HIA (Head Injury Assessment) Completed By</label>
+                <input type="text" id="hiaCompletedBy" placeholder="Name of staff member">
+            </div>
+            <div class="form-group">
+                <label>Signs/Symptoms Observed</label>
+                <textarea id="symptoms" placeholder="List any symptoms observed (e.g., headache, dizziness, confusion, nausea, sensitivity to light)"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Concussion Severity Assessment *</label>
+                <select id="severity" onchange="showSeverityInfo()">
+                    <option value="">-- Select Severity --</option>
+                    <option value="mild">ðŸŸ© Mild - Minimal symptoms, quick recovery expected</option>
+                    <option value="moderate">ðŸŸ¨ Moderate - Standard symptoms requiring careful monitoring</option>
+                    <option value="severe">ðŸŸ¥ Severe - Significant symptoms, extended recovery needed</option>
+                </select>
+            </div>
+            <div id="severityInfo" class="hidden severity-info">
+                <div id="severityDescription"></div>
+            </div>
+            <button class="btn-primary" onclick="generateTimeline()">Generate Recovery Timeline</button>
+        </div>
+        <div id="timelineSection" class="hidden">
+            <div class="form-section">
+                <h2>ðŸ“… Graduated Return to Activity Timeline</h2>
+                <p style="margin-top: 20px; font-size: 13px; color: #6b7280; border-top: 1px solid #e5e7eb; padding-top: 12px;">
+                    <strong>Concussion occurred on: <span id="displayDate"></span> (Day 0)</strong><br>
+                    <strong>Severity Level: <span id="displaySeverity"></span></strong><br>
+                    Progress to the next stage only if symptoms do not worsen. 
+                    If symptoms increase, rest until the following day.
+                </p>
+                <div class="timeline" id="stagesContainer"></div>
+                <div class="medical-note">
+                    <strong>Medical Review Required</strong>
+                    <p>If symptoms continue beyond 28 days (after <span id="day28Date"></span>), the student must remain out of sport and seek medical advice from their GP.</p>
+                </div>
+            </div>
+            <div class="download-section">
+                <h3 style="color: #d61b26; margin-bottom: 16px;">Download & Submit</h3>
+                <div class="button-group">
+                    <button class="btn-success" onclick="saveDraft()" style="width: auto; padding: 12px 32px;">
+                        ðŸ’¾ Save Draft (Editable)
+                    </button>
+                    <button class="btn-primary" onclick="downloadProtocol()" style="width: auto; padding: 12px 32px;">
+                        ðŸ“„ Download Protocol Document
+                    </button>
+                    <button class="btn-secondary" onclick="printToPDF()" style="width: auto; padding: 12px 32px;">
+                        ðŸ–¨ï¸ Print to PDF
+                    </button>
+                </div>
+                <div style="background: #fafafa; border: 2px solid #d61b26; border-radius: 8px; padding: 20px; margin-top: 20px;">
+                    <h4 style="color: #d61b26; margin-bottom: 12px; font-size: 16px;">ðŸ“¤ Submit Your Protocol</h4>
+                    <p style="color: #6e605d; font-size: 14px; margin-bottom: 16px;">
+                        After downloading your protocol document, please submit it to the school records:
+                    </p>
+                    <a href="https://kingswoodschool48.sharepoint.com/:f:/s/ITSupportSharedFiles/EvTs47rn521MntfLcwupz7cBg4cprPKe7eChykPlVes9Dw" target="_blank" style="display: inline-block; background: #d61b26; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 500; transition: all 0.2s;">
+                        Submit to School Records â†’
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const VERSION = '8.0';
+        let concussionDateObj = null;
+        let currentSeverity = null;
+        let manualDateAdjustments = {};
+        let stageComments = {};
+
+        const severityOffsets = {
+            mild: [0, 2, 4, 6, 14, 21],
+            moderate: [0, 3, 5, 8, 18, 25],
+            severe: [0, 4, 7, 10, 21, 28]
+        };
+
+        const severityDescriptions = {
+            mild: {
+                badge: 'Mild Concussion',
+                symptoms: ['Brief confusion', 'Mild headache', 'Slight dizziness'],
+                logic: 'Faster progression through early stages. Stages 1-4 follow standard or slightly accelerated timing. Stages 5-6 maintain minimum safe timelines.',
+                color: 'severity-mild'
+            },
+            moderate: {
+                badge: 'Moderate Concussion',
+                symptoms: ['Headache', 'Dizziness', 'Confusion', 'Nausea', 'Light sensitivity'],
+                logic: 'Standard progression with balanced caution and recovery pace throughout all stages.',
+                color: 'severity-moderate'
+            },
+            severe: {
+                badge: 'Severe Concussion',
+                symptoms: ['Loss of consciousness', 'Severe headache', 'Vomiting', 'Seizures', 'Memory loss'],
+                logic: 'Extended rest periods. Delayed progression through all stages. Medical supervision essential.',
+                color: 'severity-severe'
+            }
+        };
+
+        const baseStages = [
+            {
+                number: 1,
+                title: "Stage 1 - Relative Rest",
+                focus: "Relative rest period",
+                activities: [
+                    "Take it easy for the first 24-48 hours",
+                    "Minimise activity to 10-15 minute slots",
+                    "Keep phone/screen time to absolute minimum",
+                    "Light activities: walking, easy reading, simple daily tasks"
+                ],
+                warning: "Activities should not increase symptoms more than mildly"
+            },
+            {
+                number: 2,
+                title: "Stage 2 - Gradually Introduce Daily Activities",
+                focus: "Return to normal daily activities outside of school/work",
+                activities: [
+                    "Increase mental activities: easy reading, limited TV, games",
+                    "Gradually introduce school/work activities at home",
+                    "Light physical activity: short walks, simple chores",
+                    "Advance volume as long as symptoms not more than mildly increased"
+                ],
+                warning: "If symptoms increase more than mildly, rest briefly until they subside"
+            },
+            {
+                number: 3,
+                title: "Stage 3 - Increase Tolerance for Thinking Activities",
+                focus: "Increasing tolerance for mental & exercise activities",
+                activities: [
+                    "Home-based school/work activities: homework, reading (20-30 min blocks with rest)",
+                    "Discuss part-time return with school/employer",
+                    "Light aerobic exercise: walking/cycling 10-15 minutes",
+                    "Start at intensity where you can easily speak in short sentences"
+                ],
+                warning: "Progressing too quickly while symptoms are significantly worsened may slow recovery"
+            },
+            {
+                number: 4,
+                title: "Stage 4 - Return to Study/Work & Sport Training",
+                focus: "Return to study/work and non-contact training",
+                activities: [
+                    "Part-time return to school/work (half-days, breaks, reduced activities)",
+                    "Start training activities in chosen sport",
+                    "Avoid any activities involving head impacts or risk of head injury",
+                    "Increase intensity of exercise and resistance training"
+                ],
+                warning: "No training with risk of head impact until Stage 5"
+            },
+            {
+                number: 5,
+                title: "Stage 5 - Return to Normal Work/Education & Full Training",
+                focus: "Return to full academic/work activity and unrestricted training",
+                activities: [
+                    "Return to full activity and catch up on missed work",
+                    "If symptom-free at rest for 14 days, consider full training",
+                    "Can commence training with head impacts or risk of head injury",
+                    "Must be symptom-free at rest for preceding 14 days"
+                ],
+                warning: "Only progress if no symptoms at rest for 14 consecutive days"
+            },
+            {
+                number: 6,
+                title: "Stage 6 - Return to Competition",
+                focus: "Return to competitive sport",
+                activities: [
+                    "Full return to competitive sport",
+                    "Must have no symptoms at rest for preceding 14 days",
+                    "Must be symptom-free during pre-competition training",
+                    "Continue monitoring for any returning symptoms"
+                ],
+                warning: "Approximately 2/3 of individuals return by Day 28. Children/adolescents may take longer."
+            }
+        ];
+
+        function showSeverityInfo() {
+            const severity = document.getElementById('severity').value;
+            const infoDiv = document.getElementById('severityInfo');
+            const descDiv = document.getElementById('severityDescription');
+            if (severity) {
+                const info = severityDescriptions[severity];
+                descDiv.innerHTML = `
+                    <span class="severity-badge ${info.color}">${info.badge}</span>
+                    <div style="margin-top: 8px;">
+                        <strong style="font-size: 13px; color: #374151;">Typical Symptoms:</strong>
+                        <ul style="margin: 6px 0 12px 20px;">
+                            ${info.symptoms.map(s => `<li style="font-size: 12px; color: #6b7280; margin-bottom: 3px;">${s}</li>`).join('')}
+                        </ul>
+                        <strong style="font-size: 13px; color: #374151;">Recovery Approach:</strong>
+                        <p style="font-size: 12px; color: #6b7280; margin-top: 4px;">${info.logic}</p>
+                        <p style="font-size: 11px; color: #9ca3af; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb;">
+                            Stage progression: Days ${severityOffsets[severity].join(', ')}
+                        </p>
+                    </div>
+                `;
+                infoDiv.classList.remove('hidden');
+            } else {
+                infoDiv.classList.add('hidden');
+            }
+        }
+
+        function generateTimeline() {
+            const name = document.getElementById('studentName').value;
+            const concussionDate = document.getElementById('concussionDate').value;
+            const severity = document.getElementById('severity').value;
+            if (!name || !concussionDate || !severity) {
+                alert('Please fill in the student name, concussion date, and select severity level.');
+                return;
+            }
+            currentSeverity = severity;
+            concussionDateObj = new Date(concussionDate);
+            document.getElementById('displayDate').textContent = formatDate(concussionDateObj);
+            document.getElementById('displaySeverity').textContent = severityDescriptions[severity].badge;
+            document.getElementById('day28Date').textContent = formatDate(addDays(concussionDateObj, 28));
+            renderStages();
+            document.getElementById('timelineSection').classList.remove('hidden');
+            document.getElementById('timelineSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function renderStages() {
+            const stagesContainer = document.getElementById('stagesContainer');
+            stagesContainer.innerHTML = '';
+            const offsets = severityOffsets[currentSeverity];
+            baseStages.forEach((stage, index) => {
+                let stageDate;
+                if (manualDateAdjustments[index]) {
+                    stageDate = new Date(manualDateAdjustments[index]);
+                } else {
+                    const dayOffset = offsets[index];
+                    stageDate = addDays(concussionDateObj, dayOffset);
+                }
+                const nextDayOffset = index < offsets.length - 1 ? offsets[index + 1] : offsets[index] + 7;
+                const dayOffset = Math.round((stageDate - concussionDateObj) / (1000 * 60 * 60 * 24));
+                const duration = `Day ${dayOffset}${index < offsets.length - 1 ? `-${nextDayOffset - 1}` : '+'}`;
+                const stageDiv = document.createElement('div');
+                stageDiv.className = 'stage';
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const stageDateNorm = new Date(stageDate);
+                stageDateNorm.setHours(0, 0, 0, 0);
+                if (index < offsets.length - 1) {
+                    let nextStageDate;
+                    if (manualDateAdjustments[index + 1]) {
+                        nextStageDate = new Date(manualDateAdjustments[index + 1]);
+                    } else {
+                        nextStageDate = addDays(concussionDateObj, offsets[index + 1]);
+                    }
+                    const nextStageDateNorm = new Date(nextStageDate);
+                    nextStageDateNorm.setHours(0, 0, 0, 0);
+                    if (today >= stageDateNorm && today < nextStageDateNorm) {
+                        stageDiv.classList.add('current');
+                    } else if (today >= nextStageDateNorm) {
+                        stageDiv.classList.add('completed');
+                    }
+                } else {
+                    if (today >= stageDateNorm) {
+                        stageDiv.classList.add('current');
+                    }
+                }
+                const stageDateStr = stageDate.toISOString().split('T')[0];
+                // --- CORRECTED COMMENT LOGIC: Always show button if no valid comment ---
+                const rawComment = stageComments[index];
+                const hasValidComment = typeof rawComment === 'string' && rawComment.trim() !== '';
+                let commentHTML = '';
+                if (hasValidComment) {
+                    commentHTML = `
+                        <div class="stage-comment">
+                            <div class="stage-comment-label">ðŸ“ Timeline Amendment Note:</div>
+                            <div>${rawComment}</div>
+                            <button class="add-comment-btn" onclick="editStageComment(${index}, event)">Edit Note</button>
+                        </div>
+                    `;
+                } else {
+                    commentHTML = `<button class="add-comment-btn" onclick="editStageComment(${index}, event)">+ Add Timeline Note</button>`;
+                }
+                // --- END CORRECTED SECTION ---
+
+                stageDiv.innerHTML = `
+                    <div class="stage-header">
+                        <div>
+                            <div class="stage-title">${stage.title}</div>
+                            <div class="stage-day">${duration}</div>
+                        </div>
+                        <div class="stage-date date-editable" onclick="editStageDate(${index}, '${stageDateStr}')" title="Click to adjust date">
+                            ${formatDate(stageDate)}
+                        </div>
+                    </div>
+                    ${commentHTML}
+                    <div class="stage-description">
+                        <strong>${stage.focus}</strong>
+                    </div>
+                    <ul class="stage-activities">
+                        ${stage.activities.map(activity => `<li>${activity}</li>`).join('')}
+                    </ul>
+                    ${stage.warning ? `<div class="warning">âš ï¸ ${stage.warning}</div>` : ''}
+                `;
+                stagesContainer.appendChild(stageDiv);
+            });
+        }
+
+        function editStageDate(stageIndex, currentDate) {
+            const stageDateElement = event.target;
+            const dateInput = document.createElement('input');
+            dateInput.type = 'date';
+            dateInput.value = currentDate;
+            dateInput.className = 'date-input-wrapper';
+            const originalHTML = stageDateElement.innerHTML;
+            stageDateElement.innerHTML = '';
+            stageDateElement.appendChild(dateInput);
+            dateInput.focus();
+            const saveDate = () => {
+                const newDate = new Date(dateInput.value);
+                if (dateInput.value && newDate) {
+                    manualDateAdjustments[stageIndex] = dateInput.value;
+                    const daysDiff = Math.round((newDate - concussionDateObj) / (1000 * 60 * 60 * 24));
+                    adjustSubsequentStages(stageIndex, daysDiff);
+                    renderStages();
+                } else {
+                    stageDateElement.innerHTML = originalHTML;
+                }
+            };
+            dateInput.addEventListener('blur', saveDate);
+            dateInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    saveDate();
+                } else if (e.key === 'Escape') {
+                    stageDateElement.innerHTML = originalHTML;
+                }
+            });
+        }
+
+        function adjustSubsequentStages(changedStageIndex, newOffset) {
+            const offsets = severityOffsets[currentSeverity];
+            const originalOffset = offsets[changedStageIndex];
+            const offsetDifference = newOffset - originalOffset;
+            for (let i = changedStageIndex + 1; i < baseStages.length; i++) {
+                const originalNextOffset = offsets[i];
+                const newNextOffset = originalNextOffset + offsetDifference;
+                const newDate = addDays(concussionDateObj, newNextOffset);
+                manualDateAdjustments[i] = newDate.toISOString().split('T')[0];
+            }
+        }
+
+        // --- REPLACED FUNCTION: Uses inline editor instead of prompt() ---
+        function editStageComment(stageIndex, event) {
+            event.stopPropagation();
+            const stageDiv = event.target.closest('.stage');
+            const existingEditor = stageDiv.querySelector('.comment-editor');
+            if (existingEditor) return;
+
+            const currentComment = stageComments[stageIndex] || '';
+            const addBtn = stageDiv.querySelector('.add-comment-btn');
+            if (addBtn) addBtn.style.display = 'none';
+
+            const editorDiv = document.createElement('div');
+            editorDiv.className = 'stage-comment comment-editor';
+            editorDiv.innerHTML = `
+                <div class="stage-comment-label">ðŸ“ Timeline Amendment Note:</div>
+                <textarea class="comment-textarea" rows="3" placeholder="Explain why the timeline date was adjusted...">${currentComment}</textarea>
+                <div style="margin-top: 6px; display: flex; gap: 8px;">
+                    <button class="btn-success" style="padding: 4px 10px; font-size: 10px;" onclick="saveStageComment(${stageIndex}, this)">Save Note</button>
+                    <button class="btn-secondary" style="padding: 4px 10px; font-size: 10px;" onclick="cancelStageCommentEdit(${stageIndex}, this)">Cancel</button>
+                </div>
+            `;
+
+            stageDiv.appendChild(editorDiv);
+            editorDiv.querySelector('textarea').focus();
+        }
+
+        function saveStageComment(stageIndex, button) {
+            const editorDiv = button.closest('.comment-editor');
+            const textarea = editorDiv.querySelector('.comment-textarea');
+            const comment = textarea.value.trim();
+
+            if (comment) {
+                stageComments[stageIndex] = comment;
+            } else {
+                delete stageComments[stageIndex];
+            }
+
+            renderStages();
+        }
+
+        function cancelStageCommentEdit(stageIndex, button) {
+            const editorDiv = button.closest('.comment-editor');
+            const stageDiv = editorDiv.closest('.stage');
+            editorDiv.remove();
+
+            // Re-add the "+ Add Timeline Note" button
+            const addBtn = document.createElement('button');
+            addBtn.className = 'add-comment-btn';
+            addBtn.textContent = '+ Add Timeline Note';
+            addBtn.onclick = (e) => editStageComment(stageIndex, e);
+            stageDiv.appendChild(addBtn);
+        }
+        // --- END REPLACED FUNCTIONS ---
+
+        function formatDate(date) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            return date.toLocaleDateString('en-GB', options);
+        }
+
+        function addDays(date, days) {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        }
+
+        function downloadProtocol() {
+            const name = document.getElementById('studentName').value;
+            const yearGroup = document.getElementById('yearGroup').value;
+            const classForm = document.getElementById('classForm').value;
+            const concussionDate = document.getElementById('concussionDate').value;
+            const hiaBy = document.getElementById('hiaCompletedBy').value;
+            const symptoms = document.getElementById('symptoms').value;
+            const severity = document.getElementById('severity').value;
+            const offsets = severityOffsets[severity];
+            const severityInfo = severityDescriptions[severity];
+            const html = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Concussion Protocol - ${name}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 15px; line-height: 1.3; font-size: 10px; }
+        h1 { color: #92400e; text-align: center; margin-bottom: 4px; font-size: 16px; }
+        h2 { color: #78350f; border-bottom: 1px solid #f59e0b; padding-bottom: 2px; margin-top: 8px; margin-bottom: 4px; font-size: 12px; }
+        .header-info { background: #fef3c7; padding: 8px; border-radius: 4px; margin-bottom: 8px; }
+        .header-info p { margin: 2px 0; font-size: 9px; }
+        .header-single-line { display: flex; gap: 15px; flex-wrap: wrap; }
+        .header-single-line span { white-space: nowrap; }
+        .severity-badge { 
+            display: inline-block; 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-weight: bold;
+            margin: 3px 0;
+            font-size: 8px;
+        }
+        .severity-mild { background: #d1fae5; color: #065f46; }
+        .severity-moderate { background: #fed7aa; color: #92400e; }
+        .severity-severe { background: #fecaca; color: #991b1b; }
+        .severity-section { font-size: 8px; margin-bottom: 6px; }
+        .severity-section p { margin: 2px 0; }
+        .stages-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+        .stage { background: #fffbeb; border-left: 3px solid #f59e0b; padding: 6px 8px; margin-bottom: 0; page-break-inside: avoid; }
+        .stage h3 { color: #92400e; margin-bottom: 3px; font-size: 11px; }
+        .stage-date { color: #78350f; font-weight: bold; margin-bottom: 3px; font-size: 9px; }
+        ul { margin-left: 15px; margin-top: 2px; margin-bottom: 2px; }
+        li { margin-bottom: 1px; font-size: 9px; }
+        .warning { background: #fef2f2; border: 1px solid #fecaca; padding: 4px; margin-top: 4px; border-radius: 3px; color: #991b1b; font-size: 8px; }
+        .alert { background: #fee2e2; border: 1px solid #ef4444; padding: 6px; margin: 8px 0; text-align: center; }
+        .alert strong { color: #991b1b; display: block; margin-bottom: 2px; font-size: 10px; }
+        .alert p { font-size: 8px; margin: 0; }
+        @media print {
+            body { margin: 10mm; }
+            .stage { page-break-inside: avoid; }
+            .stages-grid { page-break-inside: avoid; }
+            @page { margin: 10mm; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Concussion â€“ Return to Activity, School and Sport v8.0</h1>
+    <p style="text-align: center; color: #6e605d; margin-bottom: 8px; font-size: 10px;">Graduated Return Protocol</p>
+    <div class="header-info">
+        <div class="header-single-line">
+            <span><strong>Name:</strong> ${name}</span>
+            <span><strong>Year Group:</strong> ${yearGroup}</span>
+            <span><strong>Class/Form:</strong> ${classForm}</span>
+            <span><strong>Date of Concussion/Suspected Concussion:</strong> ${formatDate(concussionDateObj)} (Day 0)</span>
+        </div>
+        <div class="severity-badge ${severityInfo.color}">${severityInfo.badge}</div>
+        ${hiaBy ? `<p style="margin-top: 4px;"><strong>HIA Completed by:</strong> ${hiaBy}</p>` : ''}
+        ${symptoms ? `<p><strong>Signs/Symptoms:</strong> ${symptoms.replace(/\n/g, '<br>')}</p>` : ''}
+    </div>
+    <h2>Severity Assessment</h2>
+    <div class="severity-section">
+        <p><strong>Level:</strong> ${severityInfo.badge} | <strong>Recovery:</strong> ${severityInfo.logic}</p>
+        <p><strong>Typical Symptoms:</strong> ${severityInfo.symptoms.join(', ')}</p>
+    </div>
+    <h2>Graduated Return to Education/Work and Sport Summary</h2>
+    <div class="stages-grid">
+    ${baseStages.map((stage, index) => {
+        const dayOffset = offsets[index];
+        const stageDate = addDays(concussionDateObj, dayOffset);
+        const nextDayOffset = index < offsets.length - 1 ? offsets[index + 1] : dayOffset + 7;
+        const duration = `Day ${dayOffset}${index < offsets.length - 1 ? `-${nextDayOffset - 1}` : '+'}`;
+        return `
+            <div class="stage">
+                <h3>${stage.title}</h3>
+                <div class="stage-date">Expected Date: ${formatDate(stageDate)} (${duration})</div>
+                <p><strong>${stage.focus}</strong></p>
+                <ul>
+                    ${stage.activities.map(activity => `<li>${activity}</li>`).join('')}
+                </ul>
+                ${stage.warning ? `<div class="warning">âš ï¸ ${stage.warning}</div>` : ''}
+            </div>
+        `;
+    }).join('')}
+    </div>
+    <div class="alert">
+        <strong>âš ï¸ Medical Review Required</strong>
+        <p>If symptoms continue beyond 28 days (after ${formatDate(addDays(concussionDateObj, 28))}), the student must remain out of sport and seek medical advice from their GP, which may require specialist referral and review.</p>
+    </div>
+    <p style="margin-top: 8px; text-align: center; color: #6b7280; font-size: 7px; line-height: 1.2;">
+        Generated: ${formatDate(new Date())} | Severity: ${severityInfo.badge} | *Rest if activity more than mildly increases symptoms | Dates adjusted based on symptom progression
+    </p>
+</body>
+</html>`;
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Concussion_Protocol_${name.replace(/\s+/g, '_')}_${severity}_${concussionDate}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function printToPDF() {
+            const name = document.getElementById('studentName').value;
+            const yearGroup = document.getElementById('yearGroup').value;
+            const classForm = document.getElementById('classForm').value;
+            const concussionDate = document.getElementById('concussionDate').value;
+            const hiaBy = document.getElementById('hiaCompletedBy').value;
+            const symptoms = document.getElementById('symptoms').value;
+            const severity = document.getElementById('severity').value;
+            if (!name || !concussionDate || !severity) {
+                alert('Please fill in the student name, concussion date, and select severity level.');
+                return;
+            }
+            const offsets = severityOffsets[severity];
+            const severityInfo = severityDescriptions[severity];
+            const html = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Concussion Protocol - ${name}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 15px; line-height: 1.3; font-size: 10px; }
+        h1 { color: #92400e; text-align: center; margin-bottom: 4px; font-size: 16px; }
+        h2 { color: #78350f; border-bottom: 1px solid #f59e0b; padding-bottom: 2px; margin-top: 8px; margin-bottom: 4px; font-size: 12px; }
+        .header-info { background: #fef3c7; padding: 8px; border-radius: 4px; margin-bottom: 8px; }
+        .header-info p { margin: 2px 0; font-size: 9px; }
+        .header-single-line { display: flex; gap: 15px; flex-wrap: wrap; }
+        .header-single-line span { white-space: nowrap; }
+        .severity-badge { 
+            display: inline-block; 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            font-weight: bold;
+            margin: 3px 0;
+            font-size: 8px;
+        }
+        .severity-mild { background: #d1fae5; color: #065f46; }
+        .severity-moderate { background: #fed7aa; color: #92400e; }
+        .severity-severe { background: #fecaca; color: #991b1b; }
+        .severity-section { font-size: 8px; margin-bottom: 6px; }
+        .severity-section p { margin: 2px 0; }
+        .stages-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+        .stage { background: #fffbeb; border-left: 3px solid #f59e0b; padding: 6px 8px; margin-bottom: 0; page-break-inside: avoid; }
+        .stage h3 { color: #92400e; margin-bottom: 3px; font-size: 11px; }
+        .stage-date { color: #78350f; font-weight: bold; margin-bottom: 3px; font-size: 9px; }
+        ul { margin-left: 15px; margin-top: 2px; margin-bottom: 2px; }
+        .stage-comment { background: #fef3c7; border: 1px solid #fbbf24; border-radius: 3px; padding: 4px; margin: 4px 0; font-size: 8px; font-style: italic; color: #92400e; }
+        .stage-comment-label { font-weight: 600; font-style: normal; color: #78350f; }
+        li { margin-bottom: 1px; font-size: 9px; }
+        .warning { background: #fef2f2; border: 1px solid #fecaca; padding: 4px; margin-top: 4px; border-radius: 3px; color: #991b1b; font-size: 8px; }
+        .alert { background: #fee2e2; border: 1px solid #ef4444; padding: 6px; margin: 8px 0; text-align: center; }
+        .alert strong { color: #991b1b; display: block; margin-bottom: 2px; font-size: 10px; }
+        .alert p { font-size: 8px; margin: 0; }
+        @media print {
+            body { margin: 10mm; }
+            .stage { page-break-inside: avoid; }
+            .stages-grid { page-break-inside: avoid; }
+            @page { margin: 10mm; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Concussion â€“ Return to Activity, School and Sport v8.0</h1>
+    <p style="text-align: center; color: #6e605d; margin-bottom: 8px; font-size: 10px;">Graduated Return Protocol</p>
+    <div class="header-info">
+        <div class="header-single-line">
+            <span><strong>Name:</strong> ${name}</span>
+            <span><strong>Year Group:</strong> ${yearGroup}</span>
+            <span><strong>Class/Form:</strong> ${classForm}</span>
+            <span><strong>Date of Concussion/Suspected Concussion:</strong> ${formatDate(concussionDateObj)} (Day 0)</span>
+        </div>
+        <div class="severity-badge ${severityInfo.color}">${severityInfo.badge}</div>
+        ${hiaBy ? `<p style="margin-top: 4px;"><strong>HIA Completed by:</strong> ${hiaBy}</p>` : ''}
+        ${symptoms ? `<p><strong>Signs/Symptoms:</strong> ${symptoms.replace(/\n/g, '<br>')}</p>` : ''}
+    </div>
+    <h2>Severity Assessment</h2>
+    <div class="severity-section">
+        <p><strong>Level:</strong> ${severityInfo.badge} | <strong>Recovery:</strong> ${severityInfo.logic}</p>
+        <p><strong>Typical Symptoms:</strong> ${severityInfo.symptoms.join(', ')}</p>
+    </div>
+    <h2>Graduated Return to Education/Work and Sport Summary</h2>
+    <div class="stages-grid">
+    ${baseStages.map((stage, index) => {
+        let stageDate;
+        if (manualDateAdjustments[index]) {
+            stageDate = new Date(manualDateAdjustments[index]);
+        } else {
+            const dayOffset = offsets[index];
+            stageDate = addDays(concussionDateObj, dayOffset);
+        }
+        const dayOffset = Math.round((stageDate - concussionDateObj) / (1000 * 60 * 60 * 24));
+        const nextDayOffset = index < offsets.length - 1 ? offsets[index + 1] : dayOffset + 7;
+        const duration = `Day ${dayOffset}${index < offsets.length - 1 ? `-${nextDayOffset - 1}` : '+'}`;
+        const commentHTML = stageComments[index] 
+            ? `<div class="stage-comment"><span class="stage-comment-label">ðŸ“ Note:</span> ${stageComments[index]}</div>`
+            : '';
+        return `
+            <div class="stage">
+                <h3>${stage.title}</h3>
+                <div class="stage-date">Expected Date: ${formatDate(stageDate)} (${duration})</div>
+                ${commentHTML}
+                <p><strong>${stage.focus}</strong></p>
+                <ul>
+                    ${stage.activities.map(activity => `<li>${activity}</li>`).join('')}
+                </ul>
+                ${stage.warning ? `<div class="warning">âš ï¸ ${stage.warning}</div>` : ''}
+            </div>
+        `;
+    }).join('')}
+    </div>
+    <div class="alert">
+        <strong>âš ï¸ Medical Review Required</strong>
+        <p>If symptoms continue beyond 28 days (after ${formatDate(addDays(concussionDateObj, 28))}), the student must remain out of sport and seek medical advice from their GP, which may require specialist referral and review.</p>
+    </div>
+    <p style="margin-top: 8px; text-align: center; color: #6b7280; font-size: 7px; line-height: 1.2;">
+        Generated: ${formatDate(new Date())} | Severity: ${severityInfo.badge} | *Rest if activity more than mildly increases symptoms | Dates adjusted based on symptom progression
+    </p>
+</body>
+</html>`;
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(html);
+            printWindow.document.close();
+            printWindow.onload = function() {
+                printWindow.focus();
+                printWindow.print();
+            };
+        }
+
+        function saveDraft() {
+            const name = document.getElementById('studentName').value;
+            const yearGroup = document.getElementById('yearGroup').value;
+            const classForm = document.getElementById('classForm').value;
+            const concussionDate = document.getElementById('concussionDate').value;
+            const hiaBy = document.getElementById('hiaCompletedBy').value;
+            const symptoms = document.getElementById('symptoms').value;
+            const severity = document.getElementById('severity').value;
+            if (!name || !concussionDate || !severity) {
+                alert('Please fill in the required fields (name, concussion date, severity) before saving draft.');
+                return;
+            }
+            const draftData = {
+                version: VERSION,
+                studentName: name,
+                yearGroup: yearGroup,
+                classForm: classForm,
+                concussionDate: concussionDate,
+                hiaCompletedBy: hiaBy,
+                symptoms: symptoms,
+                severity: severity,
+                manualDateAdjustments: manualDateAdjustments,
+                stageComments: stageComments,
+                savedDate: new Date().toISOString()
+            };
+            const json = JSON.stringify(draftData, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Concussion_Draft_${name.replace(/\s+/g, '_')}_${concussionDate}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            alert('Draft saved successfully! You can upload this file later to continue editing.');
+        }
+
+        function loadDraft(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const draftData = JSON.parse(e.target.result);
+                    let versionMessage = '';
+                    if (!draftData.version) {
+                        versionMessage = 'This draft is from an older version (pre-v7.0). ';
+                    } else if (draftData.version !== VERSION) {
+                        const draftMajor = parseInt(draftData.version.split('.')[0]);
+                        const currentMajor = parseInt(VERSION.split('.')[0]);
+                        if (draftMajor < currentMajor) {
+                            versionMessage = `This draft is from v${draftData.version} (current: v${VERSION}). Some features may have changed. `;
+                        } else if (draftMajor > currentMajor) {
+                            versionMessage = `Warning: This draft is from a newer version (v${draftData.version}) than current (v${VERSION}). `;
+                        }
+                    }
+                    if (versionMessage && !confirm(versionMessage + 'Continue loading?')) {
+                        return;
+                    }
+                    document.getElementById('studentName').value = draftData.studentName || '';
+                    document.getElementById('yearGroup').value = draftData.yearGroup || '';
+                    document.getElementById('classForm').value = draftData.classForm || '';
+                    document.getElementById('concussionDate').value = draftData.concussionDate || '';
+                    document.getElementById('hiaCompletedBy').value = draftData.hiaCompletedBy || '';
+                    document.getElementById('symptoms').value = draftData.symptoms || '';
+                    document.getElementById('severity').value = draftData.severity || '';
+                    manualDateAdjustments = draftData.manualDateAdjustments || {};
+                    stageComments = draftData.stageComments || {};
+                    if (draftData.severity) {
+                        showSeverityInfo();
+                    }
+                    if (draftData.studentName && draftData.concussionDate && draftData.severity) {
+                        generateTimeline();
+                    }
+                    const commentsCount = Object.keys(stageComments).length;
+                    const adjustmentsCount = Object.keys(manualDateAdjustments).length;
+                    let successMsg = 'Draft loaded successfully!';
+                    if (adjustmentsCount > 0) successMsg += `\n${adjustmentsCount} date adjustment(s) restored.`;
+                    if (commentsCount > 0) successMsg += `\n${commentsCount} timeline note(s) restored.`;
+                    alert(successMsg);
+                } catch (error) {
+                    alert('Error loading draft file. Please ensure it\'s a valid concussion protocol draft.');
+                    console.error('Draft load error:', error);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+        
+        // Service Worker Registration for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
