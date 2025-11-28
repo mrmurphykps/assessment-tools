@@ -1146,7 +1146,7 @@
             `;
         }
 
-        function renderSchoolTripForm() {
+function renderSchoolTripForm() {
     const d = data.typeSpecific;
     return `
         <div class="info-box">
@@ -1168,21 +1168,21 @@
             <label>Outbound Journey *</label>
             <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">When do you leave and when do you arrive at your destination?</p>
             <div class="grid-2">
-                <div class="form-group">
+                <div>
                     <label>Departure Date</label>
                     <input type="date" id="ts_outboundDepartureDate" value="${d.outboundDepartureDate || ''}">
                 </div>
-                <div class="form-group">
+                <div>
                     <label>Departure Time</label>
                     <input type="time" id="ts_outboundDepartureTime" value="${d.outboundDepartureTime || ''}">
                 </div>
             </div>
-            <div class="grid-2">
-                <div class="form-group">
+            <div class="grid-2" style="margin-top: 12px;">
+                <div>
                     <label>Arrival Date (at destination)</label>
                     <input type="date" id="ts_outboundArrivalDate" value="${d.outboundArrivalDate || ''}">
                 </div>
-                <div class="form-group">
+                <div>
                     <label>Arrival Time (at destination)</label>
                     <input type="time" id="ts_outboundArrivalTime" value="${d.outboundArrivalTime || ''}">
                 </div>
@@ -1193,21 +1193,21 @@
             <label>Return Journey *</label>
             <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">When do you leave the destination and when do you arrive back at school?</p>
             <div class="grid-2">
-                <div class="form-group">
+                <div>
                     <label>Departure Date (from destination)</label>
                     <input type="date" id="ts_returnDepartureDate" value="${d.returnDepartureDate || ''}">
                 </div>
-                <div class="form-group">
+                <div>
                     <label>Departure Time (from destination)</label>
                     <input type="time" id="ts_returnDepartureTime" value="${d.returnDepartureTime || ''}">
                 </div>
             </div>
-            <div class="grid-2">
-                <div class="form-group">
+            <div class="grid-2" style="margin-top: 12px;">
+                <div>
                     <label>Arrival Date (back at school)</label>
                     <input type="date" id="ts_returnArrivalDate" value="${d.returnArrivalDate || ''}">
                 </div>
-                <div class="form-group">
+                <div>
                     <label>Arrival Time (back at school)</label>
                     <input type="time" id="ts_returnArrivalTime" value="${d.returnArrivalTime || ''}">
                 </div>
@@ -1231,7 +1231,7 @@
             <div style="margin-top: 12px;">
                 <label class="btn-secondary" style="display: inline-block; cursor: pointer; padding: 8px 16px; font-size: 13px;">
                     📎 Upload Student List File (Optional)
-                    <input type="file" id="ts_studentFile" accept=".txt,.csv,.doc,.docx" style="display: none;" onchange="handleStudentFileUpload(event)">
+                    <input type="file" id="ts_studentFile" accept=".txt,.csv,.doc,.docx" style="display: none;" onchange="handleStudentFileUpload(event)" aria-label="Upload student list file">
                 </label>
                 <span id="studentFileName" style="margin-left: 10px; font-size: 13px; color: #6b7280;"></span>
             </div>
