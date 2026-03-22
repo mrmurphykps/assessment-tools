@@ -1500,17 +1500,17 @@ function formatLabelFromKey(key) {
 function renderTypeSpecificSummary() {
     const ts = data.typeSpecific || {};
     const entries = Object.entries(ts).filter(function ([key, value]) {
-        if (key === ‘staffMembers’) return false; // handled separately below
+        if (key === 'staffMembers') return false; // handled separately below
         if (value === null || value === undefined) return false;
-        if (typeof value === ‘string’ && value.trim() === ‘’) return false;
+        if (typeof value === 'string' && value.trim() === '') return false;
         if (Array.isArray(value) && value.length === 0) return false;
-        // skip nested objects (like activities/actions) – they’re handled separately if needed
-        if (typeof value === ‘object’ && !Array.isArray(value)) return false;
+        // skip nested objects (like activities/actions) – they're handled separately if needed
+        if (typeof value === 'object' && !Array.isArray(value)) return false;
         return true;
     });
 
     if (entries.length === 0 && (!ts.staffMembers || ts.staffMembers.length === 0)) {
-        return ‘’;
+        return '';
     }
 
     let html = `
@@ -1521,7 +1521,7 @@ function renderTypeSpecificSummary() {
     entries.forEach(function ([key, value]) {
         let display = value;
         if (Array.isArray(display)) {
-            display = display.join(‘, ‘);
+            display = display.join(', ');
         }
         html += `<p><strong>${formatLabelFromKey(key)}:</strong> ${display}</p>`;
     });
@@ -1544,9 +1544,9 @@ function renderTypeSpecificSummary() {
         ts.staffMembers.forEach(function(staff) {
             html += `
                         <tr>
-                            <td style="padding: 8px; border: 1px solid #ccc;">${staff.name || ‘Not specified’}</td>
-                            <td style="padding: 8px; border: 1px solid #ccc;">${staff.contact || ‘Not specified’}</td>
-                            <td style="padding: 8px; border: 1px solid #ccc;">${staff.firstAid || ‘Not specified’}</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">${staff.name || 'Not specified'}</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">${staff.contact || 'Not specified'}</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">${staff.firstAid || 'Not specified'}</td>
                         </tr>
             `;
         });
