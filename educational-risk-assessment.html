@@ -737,6 +737,21 @@
             }
         };
 
+        window.addStaffMember = function() {
+            if (!data.typeSpecific.staffMembers) data.typeSpecific.staffMembers = [];
+            data.typeSpecific.staffMembers.push({ name: '', contact: '', firstAid: '' });
+            markUnsaved();
+            renderStep();
+        };
+
+        window.deleteStaffMember = function(index) {
+            if (confirm('Remove this staff member?')) {
+                data.typeSpecific.staffMembers.splice(index, 1);
+                markUnsaved();
+                renderStep();
+            }
+        };
+
         window.selectAssessmentType = function(type) {
             data.assessmentType = type;
             buildSteps();
@@ -1148,6 +1163,43 @@
 
 function renderSchoolTripForm() {
     const d = data.typeSpecific;
+
+    // Initialize staffMembers array if it doesn't exist
+    if (!d.staffMembers) d.staffMembers = [];
+
+    // Build staff member cards
+    let staffHtml = '';
+    if (d.staffMembers && d.staffMembers.length > 0) {
+        staffHtml = d.staffMembers.map((staff, i) => `
+            <div class="action-card">
+                <div class="action-header">
+                    <h4>Staff Member #${i + 1}</h4>
+                    <button class="btn-danger" onclick="deleteStaffMember(${i})">Delete</button>
+                </div>
+                <div class="form-group">
+                    <label>Staff Name</label>
+                    <input type="text" value="${staff.name || ''}" placeholder="e.g., Mrs Sarah Smith" data-staff-index="${i}" data-field="name">
+                </div>
+                <div class="row">
+                    <div>
+                        <label>Contact Number</label>
+                        <input type="tel" value="${staff.contact || ''}" placeholder="e.g., 07123 456789" data-staff-index="${i}" data-field="contact">
+                    </div>
+                    <div>
+                        <label>First Aid Qualified?</label>
+                        <select data-staff-index="${i}" data-field="firstAid">
+                            <option value="">Select...</option>
+                            <option value="Yes" ${staff.firstAid === 'Yes' ? 'selected' : ''}>Yes</option>
+                            <option value="No" ${staff.firstAid === 'No' ? 'selected' : ''}>No</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        staffHtml = '<p style="color: #6b7280; text-align: center; padding: 20px;">No staff members added yet.</p>';
+    }
+
     return `
         <div class="info-box">
             <h3>School Trip / Off-site Visit Details</h3>
@@ -1216,8 +1268,9 @@ function renderSchoolTripForm() {
         </div>
 
         <div class="form-group">
-            <label>Staff Members *</label>
-            <textarea id="ts_staffNames" rows="5">${d.staffNames || ''}</textarea>
+            <label>Staff Members (Names, Contact Details and First Aid Qualified) *</label>
+            <div id="staff_members_list">${staffHtml}</div>
+            <button class="btn-dashed" onclick="addStaffMember()">+ Add Staff Member</button>
         </div>
 
         <div class="form-group">
@@ -1419,6 +1472,18 @@ function renderSchoolTripForm() {
                     });
                 }
             });
+
+            // Staff member inputs
+            document.querySelectorAll('[data-staff-index]').forEach(el => {
+                el.addEventListener('input', (e) => {
+                    const i = parseInt(e.target.dataset.staffIndex);
+                    const field = e.target.dataset.field;
+                    if (!data.typeSpecific.staffMembers) data.typeSpecific.staffMembers = [];
+                    data.typeSpecific.staffMembers[i] = data.typeSpecific.staffMembers[i] || {};
+                    data.typeSpecific.staffMembers[i][field] = e.target.value;
+                    markUnsaved();
+                });
+            });
         }
 function formatLabelFromKey(key) {
     if (!key) return '';
@@ -1435,16 +1500,17 @@ function formatLabelFromKey(key) {
 function renderTypeSpecificSummary() {
     const ts = data.typeSpecific || {};
     const entries = Object.entries(ts).filter(function ([key, value]) {
+        if (key === ‘staffMembers’) return false; // handled separately below
         if (value === null || value === undefined) return false;
-        if (typeof value === 'string' && value.trim() === '') return false;
+        if (typeof value === ‘string’ && value.trim() === ‘’) return false;
         if (Array.isArray(value) && value.length === 0) return false;
         // skip nested objects (like activities/actions) – they’re handled separately if needed
-        if (typeof value === 'object' && !Array.isArray(value)) return false;
+        if (typeof value === ‘object’ && !Array.isArray(value)) return false;
         return true;
     });
 
-    if (entries.length === 0) {
-        return '';
+    if (entries.length === 0 && (!ts.staffMembers || ts.staffMembers.length === 0)) {
+        return ‘’;
     }
 
     let html = `
@@ -1455,10 +1521,41 @@ function renderTypeSpecificSummary() {
     entries.forEach(function ([key, value]) {
         let display = value;
         if (Array.isArray(display)) {
-            display = display.join(', ');
+            display = display.join(‘, ‘);
         }
         html += `<p><strong>${formatLabelFromKey(key)}:</strong> ${display}</p>`;
     });
+
+    // Staff members table
+    if (ts.staffMembers && ts.staffMembers.length > 0) {
+        html += `
+            <div style="margin-top: 16px;">
+                <p><strong>Staff Members:</strong></p>
+                <table style="width: 100%; margin-top: 8px; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="background-color: #f0f0f0; padding: 8px; border: 1px solid #ccc; text-align: left;">Staff Name</th>
+                            <th style="background-color: #f0f0f0; padding: 8px; border: 1px solid #ccc; text-align: left;">Contact Number</th>
+                            <th style="background-color: #f0f0f0; padding: 8px; border: 1px solid #ccc; text-align: left;">First Aid Qualified?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+        ts.staffMembers.forEach(function(staff) {
+            html += `
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ccc;">${staff.name || ‘Not specified’}</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">${staff.contact || ‘Not specified’}</td>
+                            <td style="padding: 8px; border: 1px solid #ccc;">${staff.firstAid || ‘Not specified’}</td>
+                        </tr>
+            `;
+        });
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
 
     html += `</div>`;
     return html;
@@ -1866,7 +1963,22 @@ function renderReview() {
             </div>
             <div class="detail-row">
                 <div class="detail-label">Staff Members:</div>
-                <div class="detail-value">${d.staffNames ? d.staffNames.replace(/\n/g, '<br>') : 'Not specified'}</div>
+                <div class="detail-value">${
+                    (d.staffMembers && d.staffMembers.length > 0)
+                    ? `<table style="width:100%;border-collapse:collapse;margin-top:4px;">
+                        <thead><tr>
+                            <th style="background:#f0f0f0;padding:6px 8px;border:1px solid #ccc;text-align:left;">Name</th>
+                            <th style="background:#f0f0f0;padding:6px 8px;border:1px solid #ccc;text-align:left;">Contact</th>
+                            <th style="background:#f0f0f0;padding:6px 8px;border:1px solid #ccc;text-align:left;">First Aid?</th>
+                        </tr></thead>
+                        <tbody>${d.staffMembers.map(s => `<tr>
+                            <td style="padding:6px 8px;border:1px solid #ccc;">${s.name || 'Not specified'}</td>
+                            <td style="padding:6px 8px;border:1px solid #ccc;">${s.contact || 'Not specified'}</td>
+                            <td style="padding:6px 8px;border:1px solid #ccc;">${s.firstAid || 'Not specified'}</td>
+                        </tr>`).join('')}</tbody>
+                       </table>`
+                    : (d.staffNames ? d.staffNames.replace(/\n/g, '<br>') : 'Not specified')
+                }</div>
             </div>
             <div class="detail-row">
                 <div class="detail-label">Students Attending:</div>
@@ -2555,8 +2667,26 @@ function generateHTML() {
 <h2>Staffing</h2>
 <div class="section">
     <p><strong>Staff-to-Student Ratio:</strong> ${d.ratio || 'Not specified'}</p>
-    <p><strong>Staff Members (Names, Contact Details and First Aid Qualified):</strong><br>${d.staffNames ? d.staffNames.replace(/\n/g, '<br>') : 'Not specified'}</p>
 </div>
+${(d.staffMembers && d.staffMembers.length > 0) ? `
+<table>
+    <thead>
+        <tr>
+            <th>Staff Name</th>
+            <th>Contact Number</th>
+            <th>First Aid Qualified?</th>
+        </tr>
+    </thead>
+    <tbody>
+        ${d.staffMembers.map(s => `
+        <tr>
+            <td>${s.name || 'Not specified'}</td>
+            <td>${s.contact || 'Not specified'}</td>
+            <td>${s.firstAid || 'Not specified'}</td>
+        </tr>`).join('')}
+    </tbody>
+</table>
+` : (d.staffNames ? `<div class="section"><p><strong>Staff Members:</strong><br>${d.staffNames.replace(/\n/g, '<br>')}</p></div>` : '<div class="section"><p><strong>Staff Members:</strong> Not specified</p></div>')}
 
 <h2>Students Attending</h2>
 <div class="section">
